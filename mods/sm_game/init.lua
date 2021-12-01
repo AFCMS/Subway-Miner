@@ -209,23 +209,4 @@ minetest.register_chatcommand("a", {
 	end,
 })
 
--- Check each player and apply animations
---[[
-minetest.register_globalstep(function()
-	if cache_player then
-		local controls = cache_player:get_player_control()
-		local animation_speed_mod = 30
-
-		-- Determine if the player is sneaking, and reduce animation speed if so
-		--if controls.sneak then
-		--	animation_speed_mod = animation_speed_mod / 2
-		--end
-		if controls.up or controls.down or controls.left or controls.right then
-			cache_player:set_animation(model_animations["walk"], animation_speed, 0)
-		else
-			cache_player:set_animation(model_animations["stand"], animation_speed, 0)
-		end
-	end
-end)]]
-
 minetest.log("action", "[sm_game] loaded sucessfully")
