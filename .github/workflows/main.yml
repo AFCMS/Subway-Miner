@@ -1,0 +1,25 @@
+name: luacheck
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+      - name: luacheck
+        uses: nebularg/actions-luacheck@v1.1.0
+        #with:
+          #files: # optional, default is .
+          #path: # optional, default is ${{ github.workspace }}
+          #args: # optional
+          #config: # optional
+          #annotate: # optional, default is none
