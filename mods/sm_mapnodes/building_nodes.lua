@@ -1,5 +1,5 @@
 local minetest = minetest
-local vector = vector
+--local vector = vector
 
 minetest.register_node("sm_mapnodes:gravel",{
 	description = "Gravel",
