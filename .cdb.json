@@ -1,7 +1,7 @@
 {
     "type": "GAME",
     "title": "Subway Miner",
-    "name": "subway-miner",
+    "name": "subway_miner",
     "short_description": "A Subway Surfer adaptation for Minetest",
     "tags": [],
     "content_warnings": [],
