@@ -8,8 +8,8 @@
     "license": "GPL-3.0-or-later",
     "media_license": "CC-BY-4.0",
     "long_description": null,
-    "repo": null,
+    "repo": "https://github.com/AFCMS/Subway-Miner",
     "website": null,
-    "issue_tracker": null,
+    "issue_tracker": "https://github.com/AFCMS/Subway-Miner/issues",
     "forums": null
 }

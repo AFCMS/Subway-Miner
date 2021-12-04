@@ -1,22 +1,61 @@
 minetest.log("action", "[sm_game] loading...")
 
+--make API functions local for better performances
 local minetest = minetest
+local Settings = Settings
+
 local vector = vector
 local math = math
 local os = os
+local table = table
 
 local pairs = pairs
+--local tostring = tostring
 
+local modpath = minetest.get_modpath("sm_game")
+
+--the game can't be played in multiplayer
 if not minetest.is_singleplayer() then
 	error("This game isn't intended to be played in multiplayer!")
 end
 
+
+--switch the mab backend to RAM only
+--this is an ugly hack
+local worldmt = Settings(minetest.get_worldpath().."/world.mt")
+if worldmt:get("backend") ~= "dummy" then
+	worldmt:set("backend","dummy")
+	worldmt:write()
+	minetest.log("action", "[sm_game] Changed map backend to RAM only (Dummy), forcing restart")
+	--minetest.request_shutdown("Intial world setup complete, please reconnect",true,0)
+	minetest.register_on_joinplayer(function()
+		minetest.kick_player("singleplayer", "\nInitial world setup complete, please reconnect")
+	end)
+end
+
+
 --local storage = minetest.get_mod_storage()
 
-sm_game = {}
+sm_game = {
+	player_data = {
+		object = nil,
+		state = "menu",
+		infos = {},
+		hud_ids = {},
+	},
+}
+
+function sm_game.set_state(name, infos)
+	sm_game.player_data.state = name
+	sm_game.player_data.infos = infos
+end
+
+local player_data = sm_game.player_data
 
 local cache_player
-local coins_number = 0
+
+--function minetest.chat_send_player() return end
+--function minetest.chat_send_all() return end
 
 
 --local animation_speed = 30
@@ -49,6 +88,45 @@ minetest.register_on_joinplayer(function(player)
 		wielditem = false,
 		minimap = false,
 		minimap_radar = false,
+	})
+	player:set_stars({visible = false})
+	player:set_clouds({density = 0})
+	player:set_sun({visible = false})
+	player:set_moon({visible = false})
+	player:set_inventory_formspec(table.concat({
+		"formspec_version[4]",
+		"size[5,5]",
+		"position[1,0.5]",
+		"anchor[1,0.5]",
+		string.format("hypertext[0.5,0.5;4.5,4.5;help;%s]", table.concat({
+			"<style color=red size=20>Right / Left - Change line</style>\n",
+			"<style color=red size=20>Sneak - Pass under high barriers</style>\n",
+			"<style color=red size=20>Jump - Jump</style>\n",
+			"<style color=red size=20>Aux1 - Use ability</style>\n",
+		})),
+	}))
+	player_data.hud_ids.coin_icon = player:hud_add({
+		hud_elem_type = "image",
+		position = {x=0, y=0},
+		name = "coin_icon",
+		scale = {x = 4, y = 4},
+		text = "default_mese_crystal.png",
+		alignment = {x=1, y=1},
+		offset = {x=20, y=20},
+		size = { x=100, y=100 },
+		z_index = 0,
+	})
+	player_data.hud_ids.coin_count = player:hud_add({
+		hud_elem_type = "text",
+		position = {x=0, y=0},
+		name = "coin_icon",
+		scale = {x = 4, y = 4},
+		text = "000000",
+		number = 0xFFFFFF,
+		alignment = {x=1, y=1},
+		offset = {x=80, y=25},
+		size = { x=3, y=3 },
+		z_index = 0,
 	})
 end)
 
@@ -174,20 +252,22 @@ minetest.register_entity("sm_game:player", {
 				end
 			end
 		else
+			sm_game.set_state("menu", {})
 			self.object:remove()
 		end
 		for _,obj in pairs(minetest.get_objects_inside_radius(pos, 0.9)) do
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "sm_mapnodes:mese_coin" then
 				ent:capture(self.object)
-				coins_number = coins_number + 1
-				minetest.chat_send_all("captured! ("..coins_number..")")
+				player_data.infos.coins_count = player_data.infos.coins_count + 1
+				--minetest.chat_send_all("captured! ("..player_data.infos.coins_count..")")
 			end
 		end
 	end,
 	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
 		if not self.active then self.active = true return end
 		self.object:remove()
+		sm_game.set_state("menu", {})
 		if cache_player then
 			cache_player:set_look_horizontal(3/4 * math.pi)
 			cache_player:set_animation(model_animations["stand"], 30, 0)
@@ -195,18 +275,34 @@ minetest.register_entity("sm_game:player", {
 	end,
 })
 
+minetest.register_globalstep(function()
+	if cache_player then
+		if player_data.state == "game" then
+			cache_player:hud_change(player_data.hud_ids.coin_count, "text", string.format("%05.f", player_data.infos.coins_count))
+		end
+	end
+end)
+
 minetest.register_chatcommand("a", {
 	func = function()
-		local obj = minetest.add_entity(vector.new(0,0,0), "sm_game:player")
+		cache_player:set_pos(vector.new(0,1,-30900))
+		local obj = minetest.add_entity(vector.new(0,1,-30900), "sm_game:player")
 		--obj:get_luaentity().player = "singleplayer"
 		if obj then
-			cache_player:set_pos(vector.new(0,0,0))
 			cache_player:set_attach(obj, "", {x = 0, y = -5, z = 0}, {x = 0, y = 0, z = 0})
+			sm_game.set_state("game", {
+				coins_count = 0,
+				score = 0,
+				fake_player = obj,
+			})
 			return true, "Sucess"
 		else
 			return false, "Spawning object failed!"
 		end
 	end,
 })
+
+dofile(modpath.."/commands.lua")
+dofile(modpath.."/mapgen.lua")
 
 minetest.log("action", "[sm_game] loaded sucessfully")
