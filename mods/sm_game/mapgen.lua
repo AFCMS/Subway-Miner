@@ -1,5 +1,6 @@
 local minetest = minetest
 --local vector = vector
+local ipairs = ipairs
 
 local content_ids = {
 	gravel = minetest.get_content_id("sm_mapnodes:gravel"),
@@ -27,23 +28,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	local data = vm:get_data()
 
 	for z = minp.z, maxp.z do
-		for x = minp.x, maxp.x do
-			for y = minp.y, maxp.y do
-				local vi = area:index(x, y, z)
-				if y == -1 then
-					if x == -1 or x == 0 or x == 1 then
-						data[vi] = content_ids.gravel
-					end
-				elseif y == 0 or y == 1 then
-					if x == -2 or x == 2 then
-						data[vi] = content_ids.gravel
-					end
-				end
-				if y == 0 then
-					if x == -1 or x == 0 or x == 1 then
-						data[vi] = content_ids.rail
-					end
-				end
+		for e in ipairs(sm_game.map_sectors[1].border) do
+			for i in ipairs(e) do
+				
 			end
 		end
 	end
