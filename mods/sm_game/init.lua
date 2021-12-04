@@ -75,10 +75,10 @@ minetest.register_on_joinplayer(function(player)
 		mesh = "character.b3d",
 		textures = {"character.png"},
 		visual = "mesh",
-		visual_size = {x = 0.7, y = 0.7},
+		visual_size = {x = 0.5, y = 0.5},
 		collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
 		stepheight = 0.6,
-		eye_height = 0.6,--1.47,
+		eye_height = 0.4,--1.47,
 	})
 	player:hud_set_flags({
 		hotbar = false, --temp
