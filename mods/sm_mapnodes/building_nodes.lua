@@ -10,9 +10,35 @@ minetest.register_node("sm_mapnodes:gravel",{
 	drop = "",
 })
 
+minetest.register_node("sm_mapnodes:gravel2",{
+	description = "Gravel2",
+	tiles = {"default_gravel.png^[brighten"},
+	groups = {environment_block = 1},
+	diggable = false,
+	is_ground_content = false,
+	drop = "",
+})
+
 minetest.register_node("sm_mapnodes:rail", {
-	tiles = {"carts_rail_straight.png"},
-	drawtype = "raillike",
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_rail.obj",
+	tiles = {"sm_mapnodes_rail.png"},
+	use_texture_alpha = "opaque",
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
+	},
+})
+
+minetest.register_node("sm_mapnodes:bumper", {
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_bumper.obj",
+	tiles = {"sm_mapnodes_bumper.png"},
+	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
 	is_ground_content = false,
