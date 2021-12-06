@@ -18,6 +18,7 @@ sm_game.map_elements = {
 	bumper1 = {
 		{y=1, id=content_ids["sm_mapnodes:train_1"]},
 		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["sm_mapnodes:train_3"]},
 		{y=1, id=content_ids["air"]},
 		{y=1, id=content_ids["air"]},
 		{y=1, id=content_ids["sm_mapnodes:bumper"]}

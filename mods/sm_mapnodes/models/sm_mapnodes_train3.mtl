@@ -1,7 +1,7 @@
 # Blender MTL File: 'rail.blend'
 # Material Count: 1
 
-newmtl Train2
+newmtl Train3
 Ns 186.687566
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -10,4 +10,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd /home/louiswalter/dev/minetest/games/Subway-Miner/mods/sm_mapnodes/textures/sm_mapnodes_train2.png
+map_Kd .
