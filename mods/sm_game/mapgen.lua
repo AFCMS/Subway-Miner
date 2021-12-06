@@ -3,17 +3,26 @@ local minetest = minetest
 local ipairs = ipairs
 
 local VoxelArea = VoxelArea
-
-local content_ids = {
-	gravel = minetest.get_content_id("sm_mapnodes:gravel"),
-	rail = minetest.get_content_id("sm_mapnodes:rail"),
-}
+local PseudoRandom = PseudoRandom
 
 local content_ids = setmetatable({}, {__index = function(self, nodename)
     local c_id = minetest.get_content_id(nodename)
     self[nodename] = c_id
     return c_id
 end})
+
+sm_game.map_elements = {
+	train1 = {
+		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+	},
+	bumper1 = {
+		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["air"]},
+		{y=1, id=content_ids["air"]},
+		{y=1, id=content_ids["sm_mapnodes:bumper"]}
+	},
+}
 
 sm_game.map_sectors = {
 	{
@@ -35,6 +44,9 @@ sm_game.map_sectors = {
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
 		},
+		elements = {
+			{line=1, pos=10, element=sm_game.map_elements.train1},
+		},
 	},
 	{
 		border = {
@@ -54,6 +66,9 @@ sm_game.map_sectors = {
 				{x=0, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
+		},
+		elements = {
+			{line=-1, pos=5, element=sm_game.map_elements.bumper1},
 		},
 	},
 }
@@ -82,16 +97,20 @@ minetest.register_on_generated(function(minp, maxp, seed)
 		end
 	end
 
-	--[[
-	for z = minp.z, maxp.z do
-		for _,e in ipairs(border) do
-			for _,i in ipairs(e) do
-				data[area:index(i.x, i.y, z)] = i.id
+	local elements = sm_game.map_sectors[al].elements
+
+	for _,e in ipairs(elements) do
+		for z = minp.z, maxp.z do
+			if z == minp.z + e.pos then
+				minetest.chat_send_all("("..tostring(minp.z + e.pos)..")")
+				local count = 0
+				for _,node in ipairs(e.element) do
+					data[area:index(e.line, node.y, minp.z + e.pos + count)] = node.id
+					count = count + 1
+				end
 			end
 		end
-		if z == -30850 then data[area:index(1, 1, -30850)] = content_ids["sm_mapnodes:bumper"] end
 	end
-	]]
 
 	vm:set_data(data)
 	vm:write_to_map(data)
