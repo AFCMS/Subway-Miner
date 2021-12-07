@@ -121,7 +121,7 @@ minetest.register_on_joinplayer(function(player)
 		position = {x=0, y=0},
 		name = "coin_icon",
 		scale = {x = 4, y = 4},
-		text = "000000",
+		text = "00000",
 		number = 0xFFFFFF,
 		alignment = {x=1, y=1},
 		offset = {x=80, y=25},
