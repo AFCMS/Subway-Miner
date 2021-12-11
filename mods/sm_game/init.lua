@@ -40,11 +40,19 @@ local init_pos = vector.new(0,1,-30900)
 
 sm_game = {
 	data = {
-		object = nil,
 		state = "loading",
 		infos = {},
 		hud_ids = {},
 	},
+}
+
+local default_infos = {
+	game = {
+		coins_count = 0,
+		line = 0,
+		is_sneaking = false,
+		is_moving = false,
+	}
 }
 
 function sm_game.set_state(name, infos)
@@ -226,6 +234,9 @@ minetest.register_entity("sm_game:player", {
 		},
 	},
 
+	on_step = function(self)
+		--local pos = self.object:get_pos()
+	end,
 	--[[on_step = function(self)
 		local pos = self.object:get_pos()
 		--minetest.chat_send_all(pos.x)
@@ -290,42 +301,51 @@ minetest.register_entity("sm_game:player", {
 })
 
 minetest.register_globalstep(function(dtime)
-	if cache_player then
-		local gamestate = sm_game.data.state
-		local attach = cache_player:get_attach()
-		if gamestate == "loading" then
-			if attach then
-				sm_game.data.state = "game"
-			else
-				cache_player:set_pos(init_pos)
-				minetest.chat_send_all("called")
-				attach = minetest.add_entity(init_pos, "sm_game:player")
-				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-			end
-		elseif gamestate == "game" then
-			cache_player:set_animation(model_animations["walk"], 40, 0)
-		end
-		--[[if not sm_game.data.object then
-			sm_game.data.object =  minetest.add_entity(init_pos, "sm_game:player")
-			cache_player:set_attach(sm_game.data.object, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-			return
-		end
-		local gamestate = sm_game.data.state
+    if cache_player then
+        local gamestate = sm_game.data.state
+        local player = minetest.get_player_by_name("singleplayer")
+        local attach = player:get_attach()
 
-		local anim = "stand"
+        if gamestate == "loading" then
+            if attach then
+                sm_game.data.state = "game"
+                sm_game.data.infos = default_infos["game"]
+                minetest.close_formspec("singleplayer", "sm_game:loading")
+            else
+                cache_player:set_pos(init_pos)
+                minetest.chat_send_all("called")
+                attach = minetest.add_entity(init_pos, "sm_game:player")
+                player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+            end
+        elseif gamestate == "game" then
 
-		if gamestate == "game" then
-			anim = "walk"
-			--sm_game.data.infos.movement = {is_sneaking = false, is_jumping = false, is_moving = false}
-			--HUD
-			--if data.state == "game" then
-			--	cache_player:hud_change(data.hud_ids.coin_count, "text", string.format("%05.f", data.infos.coins_count))
-			--end
-		end
-		cache_player:set_animation(model_animations[anim], 40, 0)]]
-	end
+            if not attach then
+
+                minetest.log("error","ATTACH NOT FOUND!, creating new attachment!")
+
+                local pos = player:get_pos()
+                attach = minetest.add_entity(init_pos, "sm_game:player")
+				--minetest.log(dump(attach))
+                player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+            end
+
+            local lent = attach:get_luaentity()
+			minetest.log(dump(attach))
+
+			minetest.log(dump(lent))
+            lent.active = true
+
+            if not lent.is_moving then
+                local ctrl = cache_player:get_player_control()
+                --if ctrl.
+            end
+
+            cache_player:set_animation(model_animations["walk"], 40, 0)
+        end
+    end
 end)
 
+--[[
 minetest.register_chatcommand("a", {
 	func = function()
 		--cache_player:set_pos(init_pos)
@@ -345,7 +365,7 @@ minetest.register_chatcommand("a", {
 		sm_game.data.state = "game"
 		init_game()
 	end,
-})
+})]]
 
 dofile(modpath.."/commands.lua")
 dofile(modpath.."/mapgen.lua")
