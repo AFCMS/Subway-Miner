@@ -94,6 +94,51 @@ minetest.register_node("sm_mapnodes:train_3", {
 	},
 })
 
+minetest.register_node("sm_mapnodes:wagon_1", {
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_wagon1.obj",
+	tiles = {"sm_mapnodes_wagon1.png"},
+	use_texture_alpha = "opaque",
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
+	},
+})
+
+minetest.register_node("sm_mapnodes:wagon_2", {
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_wagon2.obj",
+	tiles = {"blank.png"},
+	use_texture_alpha = "opaque",
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
+	},
+})
+
+minetest.register_node("sm_mapnodes:wagon_3", {
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_wagon3.obj",
+	tiles = {"sm_mapnodes_wagon3.png"},
+	use_texture_alpha = "opaque",
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
+	},
+})
+
 
 --this is used to generate a mese entity
 minetest.register_craftitem("sm_mapnodes:mese", {

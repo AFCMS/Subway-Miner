@@ -19,8 +19,16 @@ sm_game.map_elements = {
 		{y=1, id=content_ids["sm_mapnodes:train_1"]},
 		{y=1, id=content_ids["sm_mapnodes:train_2"]},
 		{y=1, id=content_ids["sm_mapnodes:train_3"]},
-		{y=1, id=content_ids["air"]},
-		{y=1, id=content_ids["air"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:rail"]},
 		{y=1, id=content_ids["sm_mapnodes:bumper"]}
 	},
 }
@@ -47,6 +55,7 @@ sm_game.map_sectors = {
 		},
 		elements = {
 			{line=1, pos=10, element=sm_game.map_elements.train1},
+			{line=1, pos=20, element=sm_game.map_elements.train1},
 		},
 	},
 	{

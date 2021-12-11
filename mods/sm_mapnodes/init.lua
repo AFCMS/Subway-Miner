@@ -2,8 +2,6 @@ minetest.log("action", "[sm_mapnodes] loading...")
 
 local minetest = minetest
 
-local VoxelArea = VoxelArea
-
 local vector = vector
 
 --local s = minetest.get_mod_storage()

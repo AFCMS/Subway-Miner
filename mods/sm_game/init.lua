@@ -5,11 +5,11 @@ local minetest = minetest
 local Settings = Settings
 
 local vector = vector
-local math = math
+--local math = math
 local os = os
 local table = table
 
-local pairs = pairs
+--local pairs = pairs
 --local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
@@ -36,21 +36,32 @@ end
 
 --local storage = minetest.get_mod_storage()
 
+local init_pos = vector.new(0,1,-30900)
+
 sm_game = {
-	player_data = {
+	data = {
 		object = nil,
-		state = "menu",
+		state = "loading",
 		infos = {},
 		hud_ids = {},
 	},
 }
 
 function sm_game.set_state(name, infos)
-	sm_game.player_data.state = name
-	sm_game.player_data.infos = infos
+	sm_game.data.state = name
+	sm_game.data.infos = infos
 end
 
-local player_data = sm_game.player_data
+local function init_game()
+	sm_game.data.infos = {
+		coins_count = 0,
+		line = 0,
+		is_sneaking = false,
+		is_moving = false,
+	}
+end
+
+local data = sm_game.data
 
 local cache_player
 
@@ -71,6 +82,7 @@ local model_animations = {
 minetest.register_on_joinplayer(function(player)
 	cache_player = player
 	sm_game.player = player
+	player:set_pos(init_pos)
 	player:set_properties({
 		mesh = "character.b3d",
 		textures = {"character.png"},
@@ -93,6 +105,7 @@ minetest.register_on_joinplayer(function(player)
 	player:set_clouds({density = 0})
 	player:set_sun({visible = false})
 	player:set_moon({visible = false})
+	player:override_day_night_ratio(1)
 	player:set_inventory_formspec(table.concat({
 		"formspec_version[4]",
 		"size[5,5]",
@@ -105,7 +118,7 @@ minetest.register_on_joinplayer(function(player)
 			"<style color=red size=20>Aux1 - Use ability</style>\n",
 		})),
 	}))
-	player_data.hud_ids.coin_icon = player:hud_add({
+	data.hud_ids.coin_icon = player:hud_add({
 		hud_elem_type = "image",
 		position = {x=0, y=0},
 		name = "coin_icon",
@@ -116,7 +129,7 @@ minetest.register_on_joinplayer(function(player)
 		size = { x=100, y=100 },
 		z_index = 0,
 	})
-	player_data.hud_ids.coin_count = player:hud_add({
+	data.hud_ids.coin_count = player:hud_add({
 		hud_elem_type = "text",
 		position = {x=0, y=0},
 		name = "coin_icon",
@@ -128,12 +141,13 @@ minetest.register_on_joinplayer(function(player)
 		size = { x=3, y=3 },
 		z_index = 0,
 	})
+	minetest.show_formspec("singleplayer", "sm_game:loading", "size[4,5]")
 end)
 
 minetest.register_entity("sm_game:player", {
 	initial_properties = {
 		visual = "sprite",
-		textures = {"blank.png"},
+		textures = {"sm_mapnodes_wagon2.png"},
 		pointable = true, --tmp
 		static_save = false,
 	},
@@ -212,7 +226,7 @@ minetest.register_entity("sm_game:player", {
 		},
 	},
 
-	on_step = function(self)
+	--[[on_step = function(self)
 		local pos = self.object:get_pos()
 		--minetest.chat_send_all(pos.x)
 
@@ -259,8 +273,8 @@ minetest.register_entity("sm_game:player", {
 			local ent = obj:get_luaentity()
 			if ent and ent.name == "sm_mapnodes:mese_coin" then
 				ent:capture(self.object)
-				player_data.infos.coins_count = player_data.infos.coins_count + 1
-				--minetest.chat_send_all("captured! ("..player_data.infos.coins_count..")")
+				data.infos.coins_count = data.infos.coins_count + 1
+				--minetest.chat_send_all("captured! ("..data.infos.coins_count..")")
 			end
 		end
 	end,
@@ -272,33 +286,64 @@ minetest.register_entity("sm_game:player", {
 			cache_player:set_look_horizontal(3/4 * math.pi)
 			cache_player:set_animation(model_animations["stand"], 30, 0)
 		end
-	end,
+	end,]]
 })
 
-minetest.register_globalstep(function()
+minetest.register_globalstep(function(dtime)
 	if cache_player then
-		if player_data.state == "game" then
-			cache_player:hud_change(player_data.hud_ids.coin_count, "text", string.format("%05.f", player_data.infos.coins_count))
+		local gamestate = sm_game.data.state
+		local attach = cache_player:get_attach()
+		if gamestate == "loading" then
+			if attach then
+				sm_game.data.state = "game"
+			else
+				cache_player:set_pos(init_pos)
+				minetest.chat_send_all("called")
+				attach = minetest.add_entity(init_pos, "sm_game:player")
+				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+			end
+		elseif gamestate == "game" then
+			cache_player:set_animation(model_animations["walk"], 40, 0)
 		end
+		--[[if not sm_game.data.object then
+			sm_game.data.object =  minetest.add_entity(init_pos, "sm_game:player")
+			cache_player:set_attach(sm_game.data.object, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+			return
+		end
+		local gamestate = sm_game.data.state
+
+		local anim = "stand"
+
+		if gamestate == "game" then
+			anim = "walk"
+			--sm_game.data.infos.movement = {is_sneaking = false, is_jumping = false, is_moving = false}
+			--HUD
+			--if data.state == "game" then
+			--	cache_player:hud_change(data.hud_ids.coin_count, "text", string.format("%05.f", data.infos.coins_count))
+			--end
+		end
+		cache_player:set_animation(model_animations[anim], 40, 0)]]
 	end
 end)
 
 minetest.register_chatcommand("a", {
 	func = function()
-		cache_player:set_pos(vector.new(0,1,-30900))
-		local obj = minetest.add_entity(vector.new(0,1,-30900), "sm_game:player")
+		--cache_player:set_pos(init_pos)
+		--local obj = minetest.add_entity(init_pos, "sm_game:player")
 		--obj:get_luaentity().player = "singleplayer"
-		if obj then
-			cache_player:set_attach(obj, "", {x = 0, y = -5, z = 0}, {x = 0, y = 0, z = 0})
-			sm_game.set_state("game", {
-				coins_count = 0,
-				score = 0,
-				fake_player = obj,
-			})
-			return true, "Sucess"
-		else
-			return false, "Spawning object failed!"
-		end
+		--if obj then
+		--	cache_player:set_attach(obj, "", {x = 0, y = -5, z = 0}, {x = 0, y = 0, z = 0})
+		--	sm_game.set_state("game", {
+		--		coins_count = 0,
+		--		score = 0,
+		--		fake_player = obj,
+		--	})
+		--	return true, "Sucess"
+		--else
+		--	return false, "Spawning object failed!"
+		--end
+		sm_game.data.state = "game"
+		init_game()
 	end,
 })
 
