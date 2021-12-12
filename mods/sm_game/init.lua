@@ -27,7 +27,7 @@ if worldmt:get("backend") ~= "dummy" then
 	worldmt:set("backend","dummy")
 	worldmt:write()
 	minetest.log("action", "[sm_game] Changed map backend to RAM only (Dummy), forcing restart")
-	--minetest.request_shutdown("Intial world setup complete, please reconnect",true,0)
+	--minetest.request_shutdown("Intial world setup complete, please reconnect", true, 0)
 	minetest.register_on_joinplayer(function()
 		minetest.kick_player("singleplayer", "\nInitial world setup complete, please reconnect")
 	end)
@@ -49,7 +49,9 @@ sm_game = {
 local default_infos = {
 	game = {
 		coins_count = 0,
+		target_line = 0,
 		line = 0,
+		direction = nil,
 		is_sneaking = false,
 		is_moving = false,
 	}
@@ -58,15 +60,6 @@ local default_infos = {
 function sm_game.set_state(name, infos)
 	sm_game.data.state = name
 	sm_game.data.infos = infos
-end
-
-local function init_game()
-	sm_game.data.infos = {
-		coins_count = 0,
-		line = 0,
-		is_sneaking = false,
-		is_moving = false,
-	}
 end
 
 local data = sm_game.data
@@ -101,8 +94,8 @@ minetest.register_on_joinplayer(function(player)
 		eye_height = 0.4,--1.47,
 	})
 	player:hud_set_flags({
-		hotbar = false, --temp
-		crosshair = true, --temp
+		hotbar = false,
+		crosshair = false,
 		healthbar = false,
 		breathbar = false,
 		wielditem = false,
@@ -149,13 +142,28 @@ minetest.register_on_joinplayer(function(player)
 		size = { x=3, y=3 },
 		z_index = 0,
 	})
-	minetest.show_formspec("singleplayer", "sm_game:loading", "size[4,5]")
+	--sm_game_button.png
+	minetest.show_formspec("singleplayer", "sm_game:loading", table.concat({
+		"formspec_version[4]",
+		"size[20,12]",
+		"bgcolor[;true;#000000]",
+		"style_type[button;border=false;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
+		"button[1,1;4,2;test;Hello]",
+		"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#FFFFFF>Loading...]",
+	}))
+end)
+
+--close the game if the player try to quit the loading formspec
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname == "sm_game:loading" and fields.quit then
+		minetest.request_shutdown()
+	end
 end)
 
 minetest.register_entity("sm_game:player", {
 	initial_properties = {
 		visual = "sprite",
-		textures = {"sm_mapnodes_wagon2.png"},
+		textures = {"blank.png"},
 		pointable = true, --tmp
 		static_save = false,
 	},
@@ -235,7 +243,16 @@ minetest.register_entity("sm_game:player", {
 	},
 
 	on_step = function(self)
-		--local pos = self.object:get_pos()
+		if cache_player and sm_game.data.state == "game" and self.active then
+			--local pos = self.object:get_pos()
+			local infos = sm_game.data.infos
+			if infos.line ~= infos.target_line then
+				if infos.line > infos.target_line then
+					self.object:set_velocity({x=-self.walk_speed, y=0, z=self:zvel()})
+					self.direction = "right"
+				end
+			end
+		end
 	end,
 	--[[on_step = function(self)
 		local pos = self.object:get_pos()
@@ -300,74 +317,70 @@ minetest.register_entity("sm_game:player", {
 	end,]]
 })
 
-minetest.register_globalstep(function(dtime)
-    if cache_player then
-        local gamestate = sm_game.data.state
-        local player = minetest.get_player_by_name("singleplayer")
-        local attach = player:get_attach()
+local function is_line_valid(line)
+	return (line == -1 or line == 0 or line == 1)
+end
 
-        if gamestate == "loading" then
-            if attach then
-                sm_game.data.state = "game"
-                sm_game.data.infos = default_infos["game"]
-                minetest.close_formspec("singleplayer", "sm_game:loading")
-            else
-                cache_player:set_pos(init_pos)
-                minetest.chat_send_all("called")
-                attach = minetest.add_entity(init_pos, "sm_game:player")
-                player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-            end
-        elseif gamestate == "game" then
+local has_started = false
 
-            if not attach then
-
-                minetest.log("error","ATTACH NOT FOUND!, creating new attachment!")
-
-                local pos = player:get_pos()
-                attach = minetest.add_entity(init_pos, "sm_game:player")
-				--minetest.log(dump(attach))
-                player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-            end
-
-            local lent = attach:get_luaentity()
-			minetest.log(dump(attach))
-
-			minetest.log(dump(lent))
-            lent.active = true
-
-            if not lent.is_moving then
-                local ctrl = cache_player:get_player_control()
-                --if ctrl.
-            end
-
-            cache_player:set_animation(model_animations["walk"], 40, 0)
-        end
-    end
+minetest.after(3, function()
+	has_started = true
 end)
 
---[[
-minetest.register_chatcommand("a", {
-	func = function()
-		--cache_player:set_pos(init_pos)
-		--local obj = minetest.add_entity(init_pos, "sm_game:player")
-		--obj:get_luaentity().player = "singleplayer"
-		--if obj then
-		--	cache_player:set_attach(obj, "", {x = 0, y = -5, z = 0}, {x = 0, y = 0, z = 0})
-		--	sm_game.set_state("game", {
-		--		coins_count = 0,
-		--		score = 0,
-		--		fake_player = obj,
-		--	})
-		--	return true, "Sucess"
-		--else
-		--	return false, "Spawning object failed!"
-		--end
-		sm_game.data.state = "game"
-		init_game()
-	end,
-})]]
+minetest.register_globalstep(function(dtime)
+	if cache_player and has_started then
+		local gamestate = sm_game.data.state
+		local player = minetest.get_player_by_name("singleplayer")
+		local attach = player:get_attach()
 
-dofile(modpath.."/commands.lua")
+		if gamestate == "loading" then
+			if attach then
+				sm_game.data.state = "game"
+				sm_game.data.infos = default_infos["game"]
+				minetest.close_formspec("singleplayer", "sm_game:loading")
+			else
+				cache_player:set_pos(init_pos)
+				minetest.chat_send_all("called")
+				attach = minetest.add_entity(init_pos, "sm_game:player")
+				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+			end
+			cache_player:set_animation(model_animations["stand"], 40, 0)
+		elseif gamestate == "game" then
+
+			if not attach then
+
+				minetest.log("error","[sm_game] ATTACH NOT FOUND!, creating new attachment!")
+
+				attach = minetest.add_entity(init_pos, "sm_game:player")
+				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+			end
+
+			local lent = attach:get_luaentity()
+			lent.active = true
+
+			if not lent.is_moving then
+				local ctrl = cache_player:get_player_control()
+				if ctrl.right then
+					minetest.chat_send_all("right")
+					if is_line_valid(sm_game.data.infos.target_line + 1) then
+						minetest.chat_send_all("rightc")
+						sm_game.data.infos.target_line = sm_game.data.infos.target_line + 1
+					end
+				elseif ctrl.left then
+					minetest.chat_send_all("left")
+					if is_line_valid(sm_game.data.infos.target_line - 1) then
+						minetest.chat_send_all("leftc")
+						sm_game.data.infos.target_line = sm_game.data.infos.target_line - 1
+					end
+				end
+			end
+
+			cache_player:set_animation(model_animations["walk"], 40, 0)
+		end
+	end
+end)
+
+dofile(modpath.."/builtin_modifications.lua")
 dofile(modpath.."/mapgen.lua")
 
 minetest.log("action", "[sm_game] loaded sucessfully")

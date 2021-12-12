@@ -112,7 +112,7 @@ minetest.register_node("sm_mapnodes:wagon_1", {
 minetest.register_node("sm_mapnodes:wagon_2", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_wagon2.obj",
-	tiles = {"blank.png"},
+	tiles = {"sm_mapnodes_wagon2.png"},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
