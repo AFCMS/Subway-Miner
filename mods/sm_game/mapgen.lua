@@ -87,7 +87,7 @@ sm_game.map_sectors = {
 local pcgrandom = PseudoRandom(minetest.get_mapgen_setting("seed"))
 
 minetest.register_on_generated(function(minp, maxp, seed)
-	minetest.chat_send_all(string.format("minp=%s, maxp=%s", minetest.pos_to_string(minp), minetest.pos_to_string(maxp)))
+	--minetest.chat_send_all(string.format("minp=%s, maxp=%s", minetest.pos_to_string(minp), minetest.pos_to_string(maxp)))
 	if minp.y ~= -32 or minp.x ~= -32 then
 		return
 	end

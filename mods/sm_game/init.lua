@@ -258,7 +258,6 @@ minetest.register_entity("sm_game:player", {
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
 						self.object:set_velocity(vector.new(self.walk_speed, 0, self:zvel()))
-						--self.direction = "right"
 						self.is_moving = true
 					end
 				else
@@ -269,7 +268,6 @@ minetest.register_entity("sm_game:player", {
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
 						self.object:set_velocity(vector.new(-self.walk_speed, 0, self:zvel()))
-						--self.direction = "left"
 						self.is_moving = true
 					end
 				end
@@ -393,15 +391,15 @@ minetest.register_globalstep(function(dtime)
 			if not lent.is_moving then
 				local ctrl = cache_player:get_player_control()
 				if ctrl.right then
-					minetest.chat_send_all("right")
+					--minetest.chat_send_all("right")
 					if is_line_valid(infos.target_line + 1) then
-						minetest.chat_send_all("rightc")
+						--minetest.chat_send_all("rightc")
 						infos.target_line = infos.target_line + 1
 					end
 				elseif ctrl.left then
-					minetest.chat_send_all("left")
+					--minetest.chat_send_all("left")
 					if is_line_valid(infos.target_line - 1) then
-						minetest.chat_send_all("leftc")
+						--minetest.chat_send_all("leftc")
 						infos.target_line = infos.target_line - 1
 					end
 				end
@@ -416,7 +414,7 @@ minetest.register_globalstep(function(dtime)
 			end
 
 			infos.nodes.inside = minetest.get_node(pos).name
-			minetest.log("error", infos.nodes.inside)
+			--minetest.log("error", infos.nodes.inside)
 
 			if infos.nodes.inside ~= "sm_mapnodes:rail" then
 				lent.active = false
