@@ -54,6 +54,8 @@ local default_infos = {
 		direction = nil,
 		is_sneaking = false,
 		is_moving = false,
+		nodes = {
+		},
 	}
 }
 
@@ -182,7 +184,7 @@ minetest.register_entity("sm_game:player", {
 
 	zvel = function(self)
 		--TODO: reduce speed using sneak_timeout
-		return self.active and 8 or 0
+		return self.active and 12 or 0
 	end,
 
 	is_line_valid = function(self, line)
@@ -244,14 +246,36 @@ minetest.register_entity("sm_game:player", {
 
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" and self.active then
-			--local pos = self.object:get_pos()
+			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
 			if infos.line ~= infos.target_line then
-				if infos.line > infos.target_line then
-					self.object:set_velocity({x=-self.walk_speed, y=0, z=self:zvel()})
-					self.direction = "right"
+				sm_game.data.infos.is_moving = true
+				if infos.line < infos.target_line then
+					if pos.x > infos.target_line then
+						self.object:set_velocity(vector.new(0, 0, self:zvel()))
+						self.is_moving = false
+						infos.line = infos.target_line
+						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
+					else
+						self.object:set_velocity(vector.new(self.walk_speed, 0, self:zvel()))
+						--self.direction = "right"
+						self.is_moving = true
+					end
+				else
+					if pos.x < infos.target_line then
+						self.object:set_velocity(vector.new(0, 0, self:zvel()))
+						self.is_moving = false
+						infos.line = infos.target_line
+						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
+					else
+						self.object:set_velocity(vector.new(-self.walk_speed, 0, self:zvel()))
+						--self.direction = "left"
+						self.is_moving = true
+					end
 				end
 			end
+		else
+			self.object:set_velocity(vector.new(0, 0, 0))
 		end
 	end,
 	--[[on_step = function(self)
@@ -323,7 +347,7 @@ end
 
 local has_started = false
 
-minetest.after(3, function()
+minetest.after(2, function()
 	has_started = true
 end)
 
@@ -332,6 +356,9 @@ minetest.register_globalstep(function(dtime)
 		local gamestate = sm_game.data.state
 		local player = minetest.get_player_by_name("singleplayer")
 		local attach = player:get_attach()
+		local pos = cache_player:get_pos()
+
+		local infos = sm_game.data.infos
 
 		if gamestate == "loading" then
 			if attach then
@@ -343,9 +370,13 @@ minetest.register_globalstep(function(dtime)
 				minetest.chat_send_all("called")
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				local lent = attach:get_luaentity()
+				lent.active = true
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "game" then
+
+			local lent
 
 			if not attach then
 
@@ -353,28 +384,45 @@ minetest.register_globalstep(function(dtime)
 
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				lent = attach:get_luaentity()
+				lent.active = true
+			else
+				lent = attach:get_luaentity()
 			end
-
-			local lent = attach:get_luaentity()
-			lent.active = true
 
 			if not lent.is_moving then
 				local ctrl = cache_player:get_player_control()
 				if ctrl.right then
 					minetest.chat_send_all("right")
-					if is_line_valid(sm_game.data.infos.target_line + 1) then
+					if is_line_valid(infos.target_line + 1) then
 						minetest.chat_send_all("rightc")
-						sm_game.data.infos.target_line = sm_game.data.infos.target_line + 1
+						infos.target_line = infos.target_line + 1
 					end
 				elseif ctrl.left then
 					minetest.chat_send_all("left")
-					if is_line_valid(sm_game.data.infos.target_line - 1) then
+					if is_line_valid(infos.target_line - 1) then
 						minetest.chat_send_all("leftc")
-						sm_game.data.infos.target_line = sm_game.data.infos.target_line - 1
+						infos.target_line = infos.target_line - 1
 					end
 				end
 			end
 
+			for _,obj in pairs(minetest.get_objects_inside_radius(pos, 0.9)) do
+				local ent = obj:get_luaentity()
+				if ent and ent.name == "sm_mapnodes:mese_coin" then
+					ent:capture()
+					infos.coins_count = infos.coins_count + 1
+				end
+			end
+
+			infos.nodes.inside = minetest.get_node(pos).name
+			minetest.log("error", infos.nodes.inside)
+
+			if infos.nodes.inside ~= "sm_mapnodes:rail" then
+				lent.active = false
+			end
+
+			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%5.f", infos.coins_count))
 			cache_player:set_animation(model_animations["walk"], 40, 0)
 		end
 	end
