@@ -14,6 +14,41 @@ end})
 sm_game.map_elements = {
 	train1 = {
 		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["sm_mapnodes:train_3"]},
+	},
+	train2 = {
+		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["sm_mapnodes:train_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+	},
+	train3 = {
+		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["sm_mapnodes:train_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+	},
+	train4 = {
+		{y=1, id=content_ids["sm_mapnodes:train_1"]},
+		{y=1, id=content_ids["sm_mapnodes:train_2"]},
+		{y=1, id=content_ids["sm_mapnodes:train_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
 	},
 	bumper1 = {
 		{y=1, id=content_ids["sm_mapnodes:train_1"]},
@@ -30,6 +65,30 @@ sm_game.map_elements = {
 		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
 		{y=1, id=content_ids["sm_mapnodes:rail"]},
 		{y=1, id=content_ids["sm_mapnodes:bumper"]}
+	},
+	wagon1 = {
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+	},
+	wagon2 = {
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+	},
+	wagon3 = {
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
+		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
 	},
 }
 
@@ -54,8 +113,8 @@ sm_game.map_sectors = {
 			},
 		},
 		elements = {
-			{line=1, pos=10, element=sm_game.map_elements.train1},
-			{line=1, pos=20, element=sm_game.map_elements.train1},
+			{line=1, pos=10, element=sm_game.map_elements.train4},
+			{line=-1, pos=30, element=sm_game.map_elements.train2},
 		},
 	},
 	{
@@ -78,8 +137,8 @@ sm_game.map_sectors = {
 			},
 		},
 		elements = {
-			{line=-1, pos=5, element=sm_game.map_elements.bumper1},
-			{line=1, pos=20, element=sm_game.map_elements.bumper1},
+			{line=-1, pos=5, element=sm_game.map_elements.train2},
+			{line=1, pos=20, element=sm_game.map_elements.wagon3},
 		},
 	},
 }
@@ -97,7 +156,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	local data = vm:get_data()
 
 	local al = pcgrandom:next(1, #sm_game.map_sectors)
-	minetest.chat_send_all(al)
+	--minetest.chat_send_all(al)
 	local border = sm_game.map_sectors[al].border
 
 	for index, nodes in ipairs(border) do
@@ -113,7 +172,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	for _,e in ipairs(elements) do
 		for z = minp.z, maxp.z do
 			if z == minp.z + e.pos then
-				minetest.chat_send_all("("..tostring(minp.z + e.pos)..")")
+				--minetest.chat_send_all("("..tostring(minp.z + e.pos)..")")
 				local count = 0
 				for _,node in ipairs(e.element) do
 					data[area:index(e.line, node.y, minp.z + e.pos + count)] = node.id
