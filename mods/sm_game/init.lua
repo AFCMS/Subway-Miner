@@ -9,7 +9,7 @@ local vector = vector
 local os = os
 local table = table
 
---local pairs = pairs
+local pairs = pairs
 --local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
@@ -51,6 +51,9 @@ local default_infos = {
 	menu = {
 		page = "main",
 	},
+	game_loading = {
+		init_gametime = nil,
+	},
 	game = {
 		init_gametime = nil,
 		coins_count = 0,
@@ -61,12 +64,22 @@ local default_infos = {
 		is_moving = false,
 		nodes = {
 		},
-	}
+	},
+	game_end = {
+		is_hud_shown = false,
+		high_score = false,
+		is_emerged = false,
+		is_emerging = false,
+		is_send = false,
+	},
 }
 
 function sm_game.set_state(name, infos)
 	sm_game.data.state = name
-	sm_game.data.infos = infos
+	sm_game.data.infos = table.copy(default_infos[name])
+	for k,v in pairs(infos or {}) do
+		sm_game.data.infos[k] = v
+	end
 end
 
 local data = sm_game.data
@@ -87,11 +100,18 @@ local model_animations = {
 	--sit       = {x = 81,  y = 160},
 }
 
+local wait_hud_colors = {
+	0xFF0300, --red
+	0xFF8000, --orange
+	0xFFDB00, --yellow
+	0x2AFF00, --green
+}
+
 minetest.register_on_joinplayer(function(player)
 	cache_player = player
 	sm_game.player = player
-	player:set_pos(init_pos)
-	player:set_properties({
+	cache_player:set_pos(init_pos)
+	cache_player:set_properties({
 		mesh = "character.b3d",
 		textures = {"character.png"},
 		visual = "mesh",
@@ -100,7 +120,7 @@ minetest.register_on_joinplayer(function(player)
 		stepheight = 0.6,
 		eye_height = 0.4,--1.47,
 	})
-	player:hud_set_flags({
+	cache_player:hud_set_flags({
 		hotbar = false,
 		crosshair = false,
 		healthbar = false,
@@ -109,16 +129,16 @@ minetest.register_on_joinplayer(function(player)
 		minimap = false,
 		minimap_radar = false,
 	})
-	player:set_stars({visible = false})
-	player:set_clouds({density = 0})
-	player:set_sun({visible = false})
-	player:set_moon({visible = false})
-	player:override_day_night_ratio(1)
-	player:set_formspec_prepend(table.concat({
+	cache_player:set_stars({visible = false})
+	cache_player:set_clouds({density = 0})
+	cache_player:set_sun({visible = false})
+	cache_player:set_moon({visible = false})
+	cache_player:override_day_night_ratio(1)
+	cache_player:set_formspec_prepend(table.concat({
 		"bgcolor[#080808BB;both;#58AFB9]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
-	player:set_inventory_formspec(table.concat({
+	cache_player:set_inventory_formspec(table.concat({
 		"formspec_version[4]",
 		"size[5,5]",
 		"position[1,0.5]",
@@ -132,7 +152,7 @@ minetest.register_on_joinplayer(function(player)
 			"<style color=red size=20>Aux1 - Use ability</style>\n",
 		})),
 	}))
-	data.hud_ids.coin_icon = player:hud_add({
+	data.hud_ids.coin_icon = cache_player:hud_add({
 		hud_elem_type = "image",
 		position = {x=0, y=0},
 		name = "coin_icon",
@@ -143,7 +163,7 @@ minetest.register_on_joinplayer(function(player)
 		size = { x=100, y=100 },
 		z_index = 0,
 	})
-	data.hud_ids.coin_count = player:hud_add({
+	data.hud_ids.coin_count = cache_player:hud_add({
 		hud_elem_type = "text",
 		position = {x=0, y=0},
 		name = "coin_icon",
@@ -155,6 +175,17 @@ minetest.register_on_joinplayer(function(player)
 		size = { x=3, y=3 },
 		z_index = 0,
 	})
+	data.hud_ids.title = cache_player:hud_add({
+		hud_elem_type = "text",
+		position      = {x = 0.5, y = 0.5},
+		alignment     = {x = 0, y = -1.3},
+		text          = "",
+		style         = 1,
+		size          = {x = 7},
+		number        = 0xFFFFFF,
+		z_index       = 100,
+	})
+
 	--sm_game_button.png
 	minetest.show_formspec("singleplayer", "sm_game:loading", table.concat({
 		"formspec_version[4]",
@@ -172,9 +203,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			minetest.request_shutdown()
 		elseif fields.play then
 			minetest.close_formspec("singleplayer", "sm_game:menu")
-			sm_game.data.state = "game"
-			sm_game.data.infos = default_infos["game"]
-			sm_game.data.infos.init_gametime = os.time()
+			sm_game.set_state("game_loading", {init_gametime = os.time()})
 		end
 	end
 end)
@@ -198,30 +227,35 @@ minetest.register_entity("sm_game:player", {
 	end,
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" and self.active then
+			local cvel = vector.new(0, 0, self:zvel())
 			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
 			if infos.line ~= infos.target_line then
 				sm_game.data.infos.is_moving = true
 				if infos.line < infos.target_line then
 					if pos.x > infos.target_line then
-						self.object:set_velocity(vector.new(0, 0, self:zvel()))
+						--self.object:set_velocity(vector.new(0, 0, self:zvel()))
+						--cvel = vector.add(cvel, )
 						sm_game.data.infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
-						self.object:set_velocity(vector.new(self.walk_speed, 0, self:zvel()))
+						cvel = vector.add(cvel, vector.new(self.walk_speed, 0, 0))
+						--self.object:set_velocity(vector.new(self.walk_speed, 0, self:zvel()))
 					end
 				else
 					if pos.x < infos.target_line then
-						self.object:set_velocity(vector.new(0, 0, self:zvel()))
+						--self.object:set_velocity(vector.new(0, 0, self:zvel()))
 						sm_game.data.infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
-						self.object:set_velocity(vector.new(-self.walk_speed, 0, self:zvel()))
+						cvel = vector.add(cvel, vector.new(-self.walk_speed, 0, 0))
+						--self.object:set_velocity(vector.new(-self.walk_speed, 0, self:zvel()))
 					end
 				end
 			end
+			self.object:set_velocity(cvel)
 		else
 			self.object:set_velocity(vector.new(0, 0, 0))
 		end
@@ -238,40 +272,61 @@ minetest.after(2, function()
 	has_started = true
 end)
 
+local main_menu = table.concat({
+	"formspec_version[4]",
+	"size[20,12]",
+	"style_type[button;border=false;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
+	"button[8,10;4,1;play;Play]",
+})
+
 minetest.register_globalstep(function(dtime)
 	if cache_player and has_started then
 		local gamestate = sm_game.data.state
-		local player = minetest.get_player_by_name("singleplayer")
-		local attach = player:get_attach()
+		local attach = cache_player:get_attach()
 		local pos = cache_player:get_pos()
 
 		local infos = sm_game.data.infos
 
 		if gamestate == "loading" then
 			if attach then
-				sm_game.data.state = "menu"
-				sm_game.data.infos = default_infos["menu"]
-				--sm_game.data.infos.init_gametime = os.time()
+				sm_game.set_state("menu")
 				--minetest.close_formspec("singleplayer", "sm_game:loading")
 				minetest.after(0, function()
-					minetest.show_formspec("singleplayer", "sm_game:menu", table.concat({
-						"formspec_version[4]",
-						"size[20,12]",
-						"style_type[button;border=false;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
-						"button[8,10;4,1;play;Play]",
-					}))
+					minetest.show_formspec("singleplayer", "sm_game:menu", main_menu)
 				end)
 			else
 				cache_player:set_pos(init_pos)
 				--minetest.chat_send_all("called")
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 				local lent = attach:get_luaentity()
 				lent.active = true
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
-		--elseif gamestate == "menu" then
+		elseif gamestate == "game_loading" then
+			--TODO: add sound
+			local time = os.time()
+			local gametime = infos.init_gametime
+			local ctime = time - gametime
 
+			if ctime == 0 then
+				cache_player:hud_change(data.hud_ids.title, "text", "3..")
+				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+			elseif ctime == 1 then
+				cache_player:hud_change(data.hud_ids.title, "text", "2..")
+				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[2])
+			elseif ctime == 2 then
+				cache_player:hud_change(data.hud_ids.title, "text", "1..")
+				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[3])
+			elseif ctime == 3 then
+				cache_player:hud_change(data.hud_ids.title, "text", "Go!")
+				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[4])
+			elseif ctime == 4 then
+				cache_player:hud_change(data.hud_ids.title, "text", "")
+				--cache_player:set_look_vertical(math.pi*2)
+				--cache_player:set_look_horizontal(math.pi)
+				sm_game.set_state("game", {init_gametime = os.time()})
+			end
 		elseif gamestate == "game" then
 
 			local lent
@@ -281,7 +336,7 @@ minetest.register_globalstep(function(dtime)
 				minetest.log("error","[sm_game] ATTACH NOT FOUND!, creating new attachment!")
 
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 				lent = attach:get_luaentity()
 				lent.active = true
 			else
@@ -323,24 +378,54 @@ minetest.register_globalstep(function(dtime)
 				end
 			end
 
-			infos.nodes.inside = minetest.get_node(pos).name
-			--minetest.log("error", infos.nodes.inside)
-
-			if infos.nodes.inside ~= "sm_mapnodes:rail" then
-				lent.active = false
-				if infos.coins_count > sm_game.api.get_highscore() then
-					sm_game.api.set_highscore(infos.coins_count)
-					minetest.chat_send_all("New High Score!")
-				end
-			end
-
 			if sm_game.data.infos.is_sneaking then
 				cache_player:set_animation(model_animations["lay"], 40, 0)
 			else
 				cache_player:set_animation(model_animations["walk"], 40, 0)
 			end
 
+			infos.nodes.inside = minetest.get_node(pos).name
+			--minetest.log("error", infos.nodes.inside)
+
+			if infos.nodes.inside ~= "sm_mapnodes:rail" then
+				--lent.active = false
+				local is_highscore = infos.coins_count > sm_game.api.get_highscore()
+				if is_highscore then
+					sm_game.api.set_highscore(infos.coins_count)
+					minetest.chat_send_all("New High Score!")
+				end
+				sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time()})
+			end
+
 			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%5.f", infos.coins_count))
+		elseif gamestate == "game_end" then
+			if not infos.is_hud_shown then
+				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
+				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				infos.is_hud_shown = true
+			end
+			if not infos.is_emerging then
+				minetest.emerge_area(init_pos, init_pos, function(blockpos, action, calls_remaining, param)
+					if sm_game.data.state == "game_end" then
+						sm_game.data.infos.is_emerged = true
+					end
+				end)
+				infos.is_emerging = true
+			end
+
+			if infos.is_emerged and not infos.is_send then
+				infos.is_send = cache_player:send_mapblock(vector.floor(vector.divide(init_pos, vector.new(16, 16, 16))))
+			end
+
+			if infos.is_send and os.time() - infos.init_gametime > 3 then
+				local obj = cache_player:get_attach()
+				if obj then
+					obj:set_pos(init_pos)
+					cache_player:hud_change(data.hud_ids.title, "text", "")
+					sm_game.set_state("menu")
+					minetest.show_formspec("singleplayer", "sm_game:menu", main_menu)
+				end
+			end
 		end
 	end
 end)
