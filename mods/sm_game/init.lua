@@ -121,12 +121,12 @@ minetest.register_on_joinplayer(function(player)
 		eye_height = 0.4,--1.47,
 	})
 	cache_player:hud_set_flags({
-		hotbar = false,
-		crosshair = false,
-		healthbar = false,
-		breathbar = false,
-		wielditem = false,
-		minimap = false,
+		hotbar        = false,
+		crosshair     = false,
+		healthbar     = false,
+		breathbar     = false,
+		wielditem     = false,
+		minimap       = false,
 		minimap_radar = false,
 	})
 	cache_player:set_stars({visible = false})
@@ -135,7 +135,7 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:set_moon({visible = false})
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
-		"bgcolor[#080808BB;both;#58AFB9]",
+		--"bgcolor[#080808BB;both;#58AFB9]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
 	cache_player:set_inventory_formspec(table.concat({
@@ -234,24 +234,19 @@ minetest.register_entity("sm_game:player", {
 				sm_game.data.infos.is_moving = true
 				if infos.line < infos.target_line then
 					if pos.x > infos.target_line then
-						--self.object:set_velocity(vector.new(0, 0, self:zvel()))
-						--cvel = vector.add(cvel, )
 						sm_game.data.infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
 						cvel = vector.add(cvel, vector.new(self.walk_speed, 0, 0))
-						--self.object:set_velocity(vector.new(self.walk_speed, 0, self:zvel()))
 					end
 				else
 					if pos.x < infos.target_line then
-						--self.object:set_velocity(vector.new(0, 0, self:zvel()))
 						sm_game.data.infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
 						cvel = vector.add(cvel, vector.new(-self.walk_speed, 0, 0))
-						--self.object:set_velocity(vector.new(-self.walk_speed, 0, self:zvel()))
 					end
 				end
 			end
@@ -277,6 +272,7 @@ local main_menu = table.concat({
 	"size[20,12]",
 	"style_type[button;border=false;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
 	"button[8,10;4,1;play;Play]",
+	"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;true;0,79]",
 })
 
 minetest.register_globalstep(function(dtime)
@@ -296,13 +292,15 @@ minetest.register_globalstep(function(dtime)
 				end)
 			else
 				cache_player:set_pos(init_pos)
-				--minetest.chat_send_all("called")
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 				local lent = attach:get_luaentity()
 				lent.active = true
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
+		elseif gamestate == "menu" then
+			cache_player:set_look_horizontal(math.pi/2)
+			cache_player:set_look_vertical(math.pi*2)
 		elseif gamestate == "game_loading" then
 			--TODO: add sound
 			local time = os.time()
@@ -324,6 +322,7 @@ minetest.register_globalstep(function(dtime)
 			elseif ctime == 4 then
 				cache_player:hud_change(data.hud_ids.title, "text", "")
 				--cache_player:set_look_vertical(math.pi*2)
+				--cache_player:set_look_horizontal(math.pi)
 				--cache_player:set_look_horizontal(math.pi)
 				sm_game.set_state("game", {init_gametime = os.time()})
 			end
