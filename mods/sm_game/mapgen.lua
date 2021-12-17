@@ -157,7 +157,6 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
 	local al = pcgrandom:next(1, #sm_game.map_sectors)
 	--minetest.chat_send_all(al)
-	--minetest.chat_send_all(dump(vector.floor(vector.divide(minetest.get_connected_players()[1]:get_pos(), vector.new(16, 16, 16)))))
 	--minetest.chat_send_all(dump(dump(minp)..", "..dump(maxp)))
 	local border = sm_game.map_sectors[al].border
 
