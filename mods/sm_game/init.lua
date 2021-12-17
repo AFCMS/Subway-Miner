@@ -277,7 +277,7 @@ end)
 local main_menu = table.concat({
 	"formspec_version[4]",
 	"size[20,12]",
-	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
+	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
 	"button[8,10;4,1;play;Play]",
 	"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;true;0,79]",
 })
