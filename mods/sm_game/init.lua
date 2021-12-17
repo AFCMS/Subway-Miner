@@ -93,6 +93,7 @@ end
 local data = sm_game.data
 
 local cache_player
+--local cache_chunk
 
 --function minetest.chat_send_player() return end
 --function minetest.chat_send_all() return end
@@ -288,6 +289,9 @@ minetest.register_globalstep(function(dtime)
 		local attach = cache_player:get_attach()
 		local pos = cache_player:get_pos()
 
+		--cache_chunk = vector.floor(vector.divide(pos, vector.new(80, 80, 80)))
+		--minetest.chat_send_all(dump(cache_chunk))
+
 		local infos = sm_game.data.infos
 
 		if gamestate == "loading" then
@@ -308,13 +312,14 @@ minetest.register_globalstep(function(dtime)
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
 			cache_player:set_look_horizontal(math.pi/2)
-			cache_player:set_look_vertical(math.pi*2)
+			cache_player:set_look_vertical(math.pi*3/2)
 		elseif gamestate == "game_loading" then
 			local time = os.time()
 			local gametime = infos.init_gametime
 			local ctime = time - gametime
 
 			if not infos.is_sound then
+				cache_player:set_look_vertical(math.pi*3/2)
 				if settings.music and not infos.music_handler then
 					infos.music_handler = minetest.sound_play({
 						name = "sm_game_game_music"

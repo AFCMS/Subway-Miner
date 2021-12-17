@@ -152,11 +152,13 @@ minetest.register_on_generated(function(minp, maxp, seed)
 	end
 
 	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-	local area = VoxelArea:new{MinEdge=emin, MaxEdge=emax}
+	local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
 	local data = vm:get_data()
 
 	local al = pcgrandom:next(1, #sm_game.map_sectors)
 	--minetest.chat_send_all(al)
+	--minetest.chat_send_all(dump(vector.floor(vector.divide(minetest.get_connected_players()[1]:get_pos(), vector.new(16, 16, 16)))))
+	--minetest.chat_send_all(dump(dump(minp)..", "..dump(maxp)))
 	local border = sm_game.map_sectors[al].border
 
 	for index, nodes in ipairs(border) do
