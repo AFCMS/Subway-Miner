@@ -197,7 +197,7 @@ minetest.register_entity("sm_mapnodes:pick", {
 		visual           = "wielditem",
 		physical         = false,
 		--textures         = {""},
-		wield_image = "default_tool_diamondpick.png",
+		wield_item = "sm_mapnodes:pick",
 		automatic_rotate = 1.5,
 		is_visible       = true,
 		pointable        = false,
@@ -205,6 +205,6 @@ minetest.register_entity("sm_mapnodes:pick", {
 		static_save = false,
 		collisionbox = {-0.21, -0.21, -0.21, 0.21, 0.21, 0.21},
 		selectionbox = {-0.21, -0.21, -0.21, 0.21, 0.21, 0.21},
-		visual_size  = {x = 0.21, y = 0.21},
+		visual_size  = {x = 0.25, y = 0.25},
 	},
 })

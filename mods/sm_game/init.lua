@@ -296,8 +296,8 @@ minetest.register_globalstep(function(dtime)
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 
-				--local itementity = minetest.add_entity(init_pos, "sm_mapnodes:pick")
-				--itementity:set_attach(cache_player, "Hand_Right", vector.new(0, 1, 0), vector.new(90, 0, 45))
+				local itementity = minetest.add_entity(init_pos, "sm_mapnodes:pick")
+				itementity:set_attach(cache_player, "Arm_Right", vector.new(0, 5.5, 3), vector.new(-90, 225, 90))
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
