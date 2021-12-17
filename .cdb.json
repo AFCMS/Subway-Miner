@@ -2,7 +2,7 @@
     "type": "GAME",
     "title": "Subway Miner",
     "name": "subway_miner",
-    "short_description": "A Subway Surfer adaptation for Minetest",
+    "short_description": "A Subway Surfer inspired game",
     "tags": ["jam__game_", "survival"],
     "content_warnings": [],
     "license": "GPL-3.0-or-later",
