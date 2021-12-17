@@ -53,6 +53,7 @@ local default_infos = {
 	},
 	game_loading = {
 		init_gametime = nil,
+		is_sound = false,
 	},
 	game = {
 		init_gametime = nil,
@@ -269,7 +270,7 @@ end)
 local main_menu = table.concat({
 	"formspec_version[4]",
 	"size[20,12]",
-	"style_type[button;border=false;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
+	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9;bgimg=sm_game_button.png;bgimg_pressed=sm_game_button_pressed.png;bgimg_middle=2,2]",
 	"button[8,10;4,1;play;Play]",
 	"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;true;0,79]",
 })
@@ -303,10 +304,22 @@ minetest.register_globalstep(function(dtime)
 			cache_player:set_look_horizontal(math.pi/2)
 			cache_player:set_look_vertical(math.pi*2)
 		elseif gamestate == "game_loading" then
-			--TODO: add sound
 			local time = os.time()
 			local gametime = infos.init_gametime
 			local ctime = time - gametime
+
+			if not infos.is_sound then
+				minetest.after(1, function()
+					minetest.sound_play({name = "sm_game_wait"}, {to_player = "singleplayer"}, true)
+				end)
+				minetest.after(2, function()
+					minetest.sound_play({name = "sm_game_wait"}, {to_player = "singleplayer"}, true)
+				end)
+				minetest.after(3, function()
+					minetest.sound_play({name = "sm_game_wait", pitch = 1.5}, {to_player = "singleplayer"}, true)
+				end)
+				infos.is_sound = true
+			end
 
 			if ctime == 0 then
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
@@ -368,6 +381,7 @@ minetest.register_globalstep(function(dtime)
 				local ent = obj:get_luaentity()
 				if ent and ent.name == "sm_mapnodes:mese_coin" then
 					ent:capture()
+					minetest.sound_play({name = "sm_game_coin"}, {to_player = "singleplayer"}, true)
 					infos.coins_count = infos.coins_count + 1
 				end
 			end
