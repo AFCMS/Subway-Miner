@@ -31,7 +31,7 @@ if worldmt:get("backend") ~= "dummy" then
 	worldmt:set("backend","dummy")
 	worldmt:write()
 	minetest.log("action", "[sm_game] Changed map backend to RAM only (Dummy), forcing restart")
-	--minetest.request_shutdown("Intial world setup complete, please reconnect", true, 0)
+	--minetest.request_shutdown("Initial world setup complete, please reconnect", true, 0)
 	minetest.register_on_joinplayer(function()
 		minetest.kick_player("singleplayer", "\nInitial world setup complete, please reconnect")
 	end)
@@ -40,7 +40,7 @@ end
 
 --local storage = minetest.get_mod_storage()
 
-local init_pos = vector.new(0,1,-30900)
+local init_pos = vector.new(0, 1, -30900)
 
 sm_game = {
 	data = {
@@ -50,6 +50,8 @@ sm_game = {
 	},
 	api = {},
 }
+
+local sm_game = sm_game
 
 local default_infos = {
 	menu = {
@@ -284,13 +286,12 @@ minetest.register_globalstep(function(dtime)
 	if cache_player and has_started then
 		local gamestate = sm_game.data.state
 		local attach = cache_player:get_attach()
-		--local childs = cache_player:get_children()
 		local pos = cache_player:get_pos()
 
 		local infos = sm_game.data.infos
 
 		if gamestate == "loading" then
-			if attach then --childs[1] then
+			if attach then
 				sm_game.set_state("menu")
 				--minetest.close_formspec("singleplayer", "sm_game:loading")
 				minetest.after(0, function()
