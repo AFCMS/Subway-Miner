@@ -112,13 +112,13 @@ minetest.register_on_joinplayer(function(player)
 	sm_game.player = player
 	cache_player:set_pos(init_pos)
 	cache_player:set_properties({
-		mesh = "character.b3d",
-		textures = {"character.png"},
-		visual = "mesh",
-		visual_size = {x = 0.5, y = 0.5},
+		mesh         = "character.b3d",
+		textures     = {"character.png"},
+		visual       = "mesh",
+		visual_size  = {x = 0.5, y = 0.5},
 		collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
-		stepheight = 0.6,
-		eye_height = 0.4,--1.47,
+		stepheight   = 0.6,
+		eye_height   = 0.4,--1.47,
 	})
 	cache_player:hud_set_flags({
 		hotbar        = false,
@@ -154,26 +154,26 @@ minetest.register_on_joinplayer(function(player)
 	}))
 	data.hud_ids.coin_icon = cache_player:hud_add({
 		hud_elem_type = "image",
-		position = {x=0, y=0},
-		name = "coin_icon",
-		scale = {x = 4, y = 4},
-		text = "default_mese_crystal.png",
-		alignment = {x=1, y=1},
-		offset = {x=20, y=20},
-		size = { x=100, y=100 },
-		z_index = 0,
+		position      = {x=0, y=0},
+		name          = "coin_icon",
+		scale         = {x = 4, y = 4},
+		text          = "default_mese_crystal.png",
+		alignment     = {x=1, y=1},
+		offset        = {x=20, y=20},
+		size          = { x=100, y=100 },
+		z_index       = 0,
 	})
 	data.hud_ids.coin_count = cache_player:hud_add({
 		hud_elem_type = "text",
-		position = {x=0, y=0},
-		name = "coin_icon",
-		scale = {x = 4, y = 4},
-		text = "00000",
-		number = 0xFFFFFF,
-		alignment = {x=1, y=1},
-		offset = {x=80, y=25},
-		size = { x=3, y=3 },
-		z_index = 0,
+		position      = {x=0, y=0},
+		name          = "coin_icon",
+		scale         = {x = 4, y = 4},
+		text          = "00000",
+		number        = 0xFFFFFF,
+		alignment     = {x=1, y=1},
+		offset        = {x=90, y=24},
+		size          = { x=3, y=3 },
+		z_index       = 0,
 	})
 	data.hud_ids.title = cache_player:hud_add({
 		hud_elem_type = "text",
@@ -204,6 +204,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		elseif fields.play then
 			minetest.close_formspec("singleplayer", "sm_game:menu")
 			sm_game.set_state("game_loading", {init_gametime = os.time()})
+			cache_player:set_animation(model_animations["stand"], 40, 0)
 		end
 	end
 end)
@@ -218,15 +219,13 @@ minetest.register_entity("sm_game:player", {
 
 	walk_speed = 6,
 
-	active = false,
-
 	zvel = function(self)
 		--TODO: reduce speed using sneak_timeout
-		return self.active and (12+(os.time()-sm_game.data.infos.init_gametime)/5) or 0
+		return (12+(os.time()-sm_game.data.infos.init_gametime)/5) or 0
 		--return 5000
 	end,
 	on_step = function(self)
-		if cache_player and sm_game.data.state == "game" and self.active then
+		if cache_player and sm_game.data.state == "game" then
 			local cvel = vector.new(0, 0, self:zvel())
 			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
@@ -279,12 +278,13 @@ minetest.register_globalstep(function(dtime)
 	if cache_player and has_started then
 		local gamestate = sm_game.data.state
 		local attach = cache_player:get_attach()
+		--local childs = cache_player:get_children()
 		local pos = cache_player:get_pos()
 
 		local infos = sm_game.data.infos
 
 		if gamestate == "loading" then
-			if attach then
+			if attach then --childs[1] then
 				sm_game.set_state("menu")
 				--minetest.close_formspec("singleplayer", "sm_game:loading")
 				minetest.after(0, function()
@@ -294,8 +294,9 @@ minetest.register_globalstep(function(dtime)
 				cache_player:set_pos(init_pos)
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-				local lent = attach:get_luaentity()
-				lent.active = true
+
+				--local itementity = minetest.add_entity(init_pos, "sm_mapnodes:pick")
+				--itementity:set_attach(cache_player, "Hand_Right", vector.new(0, 1, 0), vector.new(90, 0, 45))
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
@@ -328,18 +329,12 @@ minetest.register_globalstep(function(dtime)
 			end
 		elseif gamestate == "game" then
 
-			local lent
-
 			if not attach then
 
 				minetest.log("error","[sm_game] ATTACH NOT FOUND!, creating new attachment!")
 
 				attach = minetest.add_entity(init_pos, "sm_game:player")
 				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
-				lent = attach:get_luaentity()
-				lent.active = true
-			else
-				lent = attach:get_luaentity()
 			end
 
 			if not sm_game.data.infos.is_moving and not sm_game.data.infos.is_sneaking then
@@ -396,11 +391,12 @@ minetest.register_globalstep(function(dtime)
 				sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time()})
 			end
 
-			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%5.f", infos.coins_count))
+			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%05.f", infos.coins_count))
 		elseif gamestate == "game_end" then
 			if not infos.is_hud_shown then
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:set_animation(model_animations["lay"], 40, 0)
 				infos.is_hud_shown = true
 			end
 			if not infos.is_emerging then
