@@ -4,6 +4,8 @@ minetest.log("action", "[sm_game] loading...")
 local minetest = minetest
 local Settings = Settings
 
+local C = minetest.colorize
+
 local vector = vector
 local math = math
 local os = os
@@ -116,6 +118,12 @@ local wait_hud_colors = {
 	0x2AFF00, --green
 }
 
+local loading_formspec = table.concat({
+	"formspec_version[4]",
+	"size[20,12]",
+	"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#58AFB9><b>Loading...</b>]",
+})
+
 minetest.register_on_joinplayer(function(player)
 	cache_player = player
 	sm_game.player = player
@@ -196,26 +204,7 @@ minetest.register_on_joinplayer(function(player)
 	})
 
 	--sm_game_button.png
-	minetest.show_formspec("singleplayer", "sm_game:loading", table.concat({
-		"formspec_version[4]",
-		"size[20,12]",
-		"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#FFFFFF>Loading...]",
-	}))
-end)
-
---close the game if the player try to quit the loading formspec
-minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if formname == "sm_game:loading" and fields.quit then
-		minetest.request_shutdown()
-	elseif formname == "sm_game:menu" then
-		if fields.quit then
-			minetest.request_shutdown()
-		elseif fields.play then
-			minetest.close_formspec("singleplayer", "sm_game:menu")
-			sm_game.set_state("game_loading", {init_gametime = os.time()})
-			cache_player:set_animation(model_animations["stand"], 40, 0)
-		end
-	end
+	minetest.show_formspec("singleplayer", "sm_game:loading", loading_formspec)
 end)
 
 minetest.register_entity("sm_game:player", {
@@ -275,13 +264,65 @@ minetest.after(2, function()
 	has_started = true
 end)
 
-local main_menu = table.concat({
+local main_menu_header = table.concat({
 	"formspec_version[4]",
 	"size[20,12]",
 	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
-	"button[8,10;4,1;play;Play]",
-	"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;true;0,79]",
 })
+
+local function get_main_menu(page)
+	if page == "main" then
+		local form = main_menu_header
+		form = form..table.concat({
+			"button[8,7;4,1;play;Play]",
+			"button[8,8;4,1;help;Help]",
+			"button[8,9;4,1;infos;Infos]",
+			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
+		})
+		return form
+	elseif page == "infos" then
+		local form = main_menu_header
+		form = form..table.concat({
+			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
+				"<style color=#58AFB9 size=50><center><b>Help</b></center></style>",
+				"<global size=25 color=#58AFB9>",
+				"This game is a Subway-Surfers adaptation in the Minetest style\n",
+				"It was made by AFCM for the Minetest Game Jam 2021\n\n",
+				"Licence: GPLv3\n",
+				"Source Code: ",
+				"<action name=link_github>GitHub</action>",
+				--"<style color=red size=20>Right / Left - Change line</style>\n",
+				--"<style color=red size=20>Sneak - Pass under high barriers</style>\n",
+				--"<style color=red size=20>Jump - Jump</style>\n",
+				--"<style color=red size=20>Aux1 - Use ability</style>\n",
+			})),
+			"button[0,0;2,1;back;Back]",
+		})
+		return form
+	end
+end
+
+--close the game if the player try to quit the loading formspec
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname == "sm_game:loading" and fields.quit then
+		minetest.request_shutdown()
+	elseif formname == "sm_game:menu" then
+		print(dump(fields))
+		if fields.quit then
+			minetest.request_shutdown()
+		elseif fields.play then
+			minetest.close_formspec("singleplayer", "sm_game:menu")
+			sm_game.set_state("game_loading", {init_gametime = os.time()})
+			cache_player:set_animation(model_animations["stand"], 40, 0)
+		elseif fields.back then
+			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
+		elseif fields.infos then
+			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("infos"))
+		elseif fields.help_txt == "action:link_github" then
+			minetest.chat_send_all(C("green", "Source Code: https://github.com/AFCMS/Subway-Miner"))
+		end
+	end
+end)
 
 minetest.register_globalstep(function(dtime)
 	if cache_player and has_started then
@@ -299,7 +340,7 @@ minetest.register_globalstep(function(dtime)
 				sm_game.set_state("menu")
 				--minetest.close_formspec("singleplayer", "sm_game:loading")
 				minetest.after(0, function()
-					minetest.show_formspec("singleplayer", "sm_game:menu", main_menu)
+					minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
 				end)
 			else
 				cache_player:set_pos(init_pos)
@@ -460,7 +501,7 @@ minetest.register_globalstep(function(dtime)
 					obj:set_pos(init_pos)
 					cache_player:hud_change(data.hud_ids.title, "text", "")
 					sm_game.set_state("menu")
-					minetest.show_formspec("singleplayer", "sm_game:menu", main_menu)
+					minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
 				end
 			end
 		end
