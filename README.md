@@ -15,4 +15,5 @@ Sounds:
 - [`sm_game_coin.ogg`](https://freesound.org/people/TreasureSounds/sounds/332629/) (CC-BY) 
 - [`sm_game_button.ogg`](https://freesound.org/people/NenadSimic/sounds/268108/) (CC-0)
 - [`sm_game_wait.ogg`](https://www.zapsplat.com/music/button-tick/)
+- [`sm_game_game_music.ogg`](https://pixabay.com/music/dance-party-mood-10647/) (Free)
 

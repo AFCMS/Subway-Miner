@@ -1,0 +1,3 @@
+#    Is music enabled
+#    default: true
+subwayminer.music (Enable Music) bool true

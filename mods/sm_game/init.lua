@@ -5,7 +5,7 @@ local minetest = minetest
 local Settings = Settings
 
 local vector = vector
---local math = math
+local math = math
 local os = os
 local table = table
 
@@ -13,6 +13,10 @@ local pairs = pairs
 --local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
+
+local settings = {
+	music = minetest.settings:get_bool("subwayminer.music", true)
+}
 
 --the game can't be played in multiplayer
 if not minetest.is_singleplayer() then
@@ -65,6 +69,7 @@ local default_infos = {
 		is_moving = false,
 		nodes = {
 		},
+		music_handler = nil,
 	},
 	game_end = {
 		is_hud_shown = false,
@@ -131,12 +136,12 @@ minetest.register_on_joinplayer(function(player)
 		minimap_radar = false,
 	})
 	cache_player:set_stars({visible = false})
-	cache_player:set_clouds({density = 0})
+	--cache_player:set_clouds({density = 0})
 	cache_player:set_sun({visible = false})
 	cache_player:set_moon({visible = false})
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
-		--"bgcolor[#080808BB;both;#58AFB9]",
+		"bgcolor[#080808BB;both;#58AFB9]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
 	cache_player:set_inventory_formspec(table.concat({
@@ -309,6 +314,16 @@ minetest.register_globalstep(function(dtime)
 			local ctime = time - gametime
 
 			if not infos.is_sound then
+				if settings.music and not infos.music_handler then
+					infos.music_handler = minetest.sound_play({
+						name = "sm_game_game_music"
+					},
+					{
+						to_player = "singleplayer",
+						gain = 0.2,
+						loop = true
+					}, false)
+				end
 				minetest.after(1, function()
 					minetest.sound_play({name = "sm_game_wait"}, {to_player = "singleplayer"}, true)
 				end)
@@ -322,6 +337,7 @@ minetest.register_globalstep(function(dtime)
 			end
 
 			if ctime == 0 then
+				cache_player:hud_change(data.hud_ids.coin_count, "text", "00000")
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
 			elseif ctime == 1 then
@@ -338,7 +354,8 @@ minetest.register_globalstep(function(dtime)
 				--cache_player:set_look_vertical(math.pi*2)
 				--cache_player:set_look_horizontal(math.pi)
 				--cache_player:set_look_horizontal(math.pi)
-				sm_game.set_state("game", {init_gametime = os.time()})
+				local sh = infos.music_handler
+				sm_game.set_state("game", {init_gametime = os.time(), music_handler = sh})
 			end
 		elseif gamestate == "game" then
 
@@ -402,7 +419,8 @@ minetest.register_globalstep(function(dtime)
 					sm_game.api.set_highscore(infos.coins_count)
 					minetest.chat_send_all("New High Score!")
 				end
-				sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time()})
+				local sh = infos.music_handler
+				sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
 			end
 
 			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%05.f", infos.coins_count))
@@ -411,6 +429,10 @@ minetest.register_globalstep(function(dtime)
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
 				cache_player:set_animation(model_animations["lay"], 40, 0)
+				if settings.music and infos.music_handler then
+					minetest.sound_fade(infos.music_handler, 4, 0)
+					infos.music_handler = nil
+				end
 				infos.is_hud_shown = true
 			end
 			if not infos.is_emerging then
