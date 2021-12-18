@@ -16,8 +16,8 @@ minetest.register_abm({
 
 	interval = 3,
 	chance = 20,
-	min_y = -1,
-    max_y = -1,
+	min_y = 0,
+    max_y = 0,
 	action = function(pos, node, active_object_count, active_object_count_wider)
 		local pos2 = vector.add(pos, vector.new(0, 1, 0))
 		minetest.add_entity(pos2, "sm_mapnodes:mese_coin")

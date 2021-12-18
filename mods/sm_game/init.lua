@@ -12,12 +12,14 @@ local os = os
 local table = table
 
 local pairs = pairs
+local tonumber = tonumber
 --local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
 
 local settings = {
-	music = minetest.settings:get_bool("subwayminer.music", true)
+	music = minetest.settings:get_bool("subwayminer.music", true),
+	speed_clipping = tonumber(minetest.settings:get("subwayminer.speed_clipping")) or 30
 }
 
 --the game can't be played in multiplayer
@@ -202,6 +204,16 @@ minetest.register_on_joinplayer(function(player)
 		number        = 0xFFFFFF,
 		z_index       = 100,
 	})
+	data.hud_ids.subtitle = cache_player:hud_add({
+		hud_elem_type = "text",
+		position      = {x = 0.5, y = 0.6},
+		alignment     = {x = 0, y = -1.3},
+		text          = "",
+		style         = 1,
+		size          = {x = 3},
+		number        = 0xFFFFFF,
+		z_index       = 100,
+	})
 
 	--sm_game_button.png
 	minetest.show_formspec("singleplayer", "sm_game:loading", loading_formspec)
@@ -218,12 +230,11 @@ minetest.register_entity("sm_game:player", {
 	walk_speed = 6,
 
 	zvel = function(self)
-		--TODO: reduce speed using sneak_timeout
-		return (12+(os.time()-sm_game.data.infos.init_gametime)/5) or 0
-		--return 5000
+		return math.min((12+(os.time()-sm_game.data.infos.init_gametime)/5), settings.speed_clipping) or 0
 	end,
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" then
+			minetest.chat_send_all(dump(self:zvel()))
 			local cvel = vector.new(0, 0, self:zvel())
 			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
@@ -480,6 +491,10 @@ minetest.register_globalstep(function(dtime)
 					minetest.sound_fade(infos.music_handler, 4, 0)
 					infos.music_handler = nil
 				end
+				if infos.high_score then
+					cache_player:hud_change(data.hud_ids.subtitle, "text", "New Highscore!")
+					cache_player:hud_change(data.hud_ids.subtitle, "number", wait_hud_colors[4])
+				end
 				infos.is_hud_shown = true
 			end
 			if not infos.is_emerging then
@@ -500,6 +515,7 @@ minetest.register_globalstep(function(dtime)
 				if obj then
 					obj:set_pos(init_pos)
 					cache_player:hud_change(data.hud_ids.title, "text", "")
+					cache_player:hud_change(data.hud_ids.subtitle, "text", "")
 					sm_game.set_state("menu")
 					minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
 				end
