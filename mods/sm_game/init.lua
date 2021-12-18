@@ -215,7 +215,6 @@ minetest.register_on_joinplayer(function(player)
 		z_index       = 100,
 	})
 
-	--sm_game_button.png
 	minetest.show_formspec("singleplayer", "sm_game:loading", loading_formspec)
 end)
 
@@ -234,7 +233,6 @@ minetest.register_entity("sm_game:player", {
 	end,
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" then
-			minetest.chat_send_all(dump(self:zvel()))
 			local cvel = vector.new(0, 0, self:zvel())
 			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
@@ -318,7 +316,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "sm_game:loading" and fields.quit then
 		minetest.request_shutdown()
 	elseif formname == "sm_game:menu" then
-		print(dump(fields))
 		if fields.quit then
 			minetest.request_shutdown()
 		elseif fields.play then

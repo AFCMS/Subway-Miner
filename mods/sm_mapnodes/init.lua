@@ -4,16 +4,13 @@ local minetest = minetest
 
 local vector = vector
 
---local s = minetest.get_mod_storage()
 local modpath = minetest.get_modpath("sm_mapnodes")
 
 dofile(modpath.."/building_nodes.lua")
 
 minetest.register_abm({
 	label = "Coins Spawning",
-
 	nodenames = {"sm_mapnodes:gravel"},
-
 	interval = 3,
 	chance = 20,
 	min_y = 0,
