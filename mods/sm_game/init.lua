@@ -202,12 +202,23 @@ minetest.register_on_joinplayer(function(player)
 		position      = {x=0, y=0},
 		name          = "coin_icon",
 		scale         = {x = 4, y = 4},
-		text          = "00000",
+		text          = "000000",
 		number        = 0xFFFFFF,
 		alignment     = {x=1, y=1},
 		offset        = {x=90, y=24},
 		size          = { x=3, y=3 },
 		z_index       = 0,
+	})
+	data.hud_ids.coin_bg = cache_player:hud_add({
+		hud_elem_type = "image",
+		position      = {x=0, y=0},
+		name          = "coin_bg",
+		scale         = {x = 2, y = 2},
+		text          = "sm_game_score_hud.png",
+		alignment     = {x=1, y=1},
+		offset        = {x=19, y=19},
+		size          = { x=100, y=100 },
+		z_index       = -1,
 	})
 	data.hud_ids.title = cache_player:hud_add({
 		hud_elem_type = "text",
@@ -324,6 +335,12 @@ local function get_main_menu(page)
 			"button[8,9;4,1;infos;Infos]",
 			"button[8,10;4,1;quit;Quit]",
 			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
+			string.format("hypertext[13,1;6,10;info_txt;%s]", table.concat({
+				"<style color=#58AFB9 size=50><center><b>Stats</b></center></style>",
+				"<global size=25 color=#58AFB9>",
+				"<mono>Highscore:    "..string.format("%06.f", sm_game.api.get_highscore()).."</mono>\n",
+				"<mono>Playtime:     ".."1:12:24".."</mono>\n",
+			})),
 		})
 		return form
 	elseif page == "options" then
@@ -598,7 +615,7 @@ minetest.register_globalstep(function(dtime)
 				end
 			end
 
-			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%05.f", infos.coins_count))
+			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%06.f", infos.coins_count))
 		elseif gamestate == "game_end" then
 			if not infos.is_hud_shown then
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
