@@ -51,19 +51,6 @@ sm_game.map_elements = {
 		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
 	},
 	bumper1 = {
-		{y=1, id=content_ids["sm_mapnodes:train_1"]},
-		{y=1, id=content_ids["sm_mapnodes:train_2"]},
-		{y=1, id=content_ids["sm_mapnodes:train_3"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
-		{y=1, id=content_ids["sm_mapnodes:wagon_3"]},
-		{y=1, id=content_ids["sm_mapnodes:rail"]},
 		{y=1, id=content_ids["sm_mapnodes:bumper"]}
 	},
 	wagon1 = {
@@ -139,6 +126,7 @@ sm_game.map_sectors = {
 		elements = {
 			{line=-1, pos=5, element=sm_game.map_elements.train2},
 			{line=1, pos=20, element=sm_game.map_elements.wagon3},
+			{line=0, pos=30, element=sm_game.map_elements.bumper1}
 		},
 	},
 }

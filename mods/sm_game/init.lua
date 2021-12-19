@@ -70,8 +70,11 @@ local default_infos = {
 		coins_count = 0,
 		target_line = 0,
 		line = 0,
+		target_height = 0.5,
+		height = 0.5,
 		direction = nil,
 		is_sneaking = false,
+		is_jumping = false,
 		is_moving = false,
 		nodes = {
 		},
@@ -237,10 +240,10 @@ minetest.register_entity("sm_game:player", {
 			local pos = self.object:get_pos()
 			local infos = sm_game.data.infos
 			if infos.line ~= infos.target_line then
-				sm_game.data.infos.is_moving = true
+				infos.is_moving = true
 				if infos.line < infos.target_line then
 					if pos.x > infos.target_line then
-						sm_game.data.infos.is_moving = false
+						infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
@@ -248,11 +251,31 @@ minetest.register_entity("sm_game:player", {
 					end
 				else
 					if pos.x < infos.target_line then
-						sm_game.data.infos.is_moving = false
+						infos.is_moving = false
 						infos.line = infos.target_line
 						self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
 					else
 						cvel = vector.add(cvel, vector.new(-self.walk_speed, 0, 0))
+					end
+				end
+			elseif infos.is_jumping then
+				if not infos.jumping_state then
+					infos.jumping_state = "up"
+				end
+				if infos.jumping_state == "up" then
+					if pos.y > 3 then
+						infos.jumping_state = "down"
+						--self.object:set_pos(vector.new(infos.line, pos.y, pos.z))
+					else
+						cvel = vector.add(cvel, vector.new(0, self.walk_speed, 0))
+					end
+				else
+					if pos.y < 1 then
+						infos.is_jumping = false
+						infos.jumping_state = nil
+						self.object:set_pos(vector.new(infos.line, 1, pos.z))
+					else
+						cvel = vector.add(cvel, vector.new(0, -self.walk_speed, 0))
 					end
 				end
 			end
@@ -286,6 +309,7 @@ local function get_main_menu(page)
 			"button[8,7;4,1;play;Play]",
 			"button[8,8;4,1;help;Help]",
 			"button[8,9;4,1;infos;Infos]",
+			"button[8,10;4,1;quit;Quit]",
 			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
 		})
 		return form
@@ -422,7 +446,7 @@ minetest.register_globalstep(function(dtime)
 				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 			end
 
-			if not sm_game.data.infos.is_moving and not sm_game.data.infos.is_sneaking then
+			if not infos.is_moving and not infos.is_sneaking and not infos.is_jumping then
 				local ctrl = cache_player:get_player_control()
 				if ctrl.right then
 					--minetest.chat_send_all("right")
@@ -437,8 +461,11 @@ minetest.register_globalstep(function(dtime)
 						infos.target_line = infos.target_line - 1
 					end
 				elseif ctrl.sneak then
-					sm_game.data.infos.is_sneaking = true
-					sm_game.data.infos.sneak_timeout = os.clock()
+					infos.is_sneaking = true
+					infos.sneak_timeout = os.clock()
+				elseif ctrl.jump then
+					infos.is_jumping = true
+					infos.target_height = 2
 				end
 			end
 
@@ -464,18 +491,28 @@ minetest.register_globalstep(function(dtime)
 				cache_player:set_animation(model_animations["walk"], 40, 0)
 			end
 
-			infos.nodes.inside = minetest.get_node(pos).name
-			--minetest.log("error", infos.nodes.inside)
+			infos.nodes.inside = minetest.get_node(vector.new(infos.line, 1, pos.z)).name
 
-			if infos.nodes.inside ~= "sm_mapnodes:rail" then
-				--lent.active = false
-				local is_highscore = infos.coins_count > sm_game.api.get_highscore()
-				if is_highscore then
-					sm_game.api.set_highscore(infos.coins_count)
-					minetest.chat_send_all("New High Score!")
+			local obstacle_state = minetest.get_item_group(infos.nodes.inside, "obstacle")
+
+			if obstacle_state ~= 0 then
+				local is_crash = false
+				if obstacle_state == 1 then
+					is_crash = true
+				elseif obstacle_state == 2 then
+					if not infos.is_jumping then
+						is_crash = true
+					end
 				end
-				local sh = infos.music_handler
-				sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
+				if is_crash then
+					local is_highscore = infos.coins_count > sm_game.api.get_highscore()
+					if is_highscore then
+						sm_game.api.set_highscore(infos.coins_count)
+						minetest.chat_send_all("New High Score!")
+					end
+					local sh = infos.music_handler
+					sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
+				end
 			end
 
 			cache_player:hud_change(sm_game.data.hud_ids.coin_count, "text", string.format("%05.f", infos.coins_count))

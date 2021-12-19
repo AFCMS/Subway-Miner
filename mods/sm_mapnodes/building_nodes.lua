@@ -1,6 +1,13 @@
 local minetest = minetest
 --local vector = vector
 
+
+--obstacle node group:
+--0: not an obstacle
+--1: hard obstacle
+--2: jump avoidable obstacle
+--3: sneak avoidable obstacle
+
 minetest.register_node("sm_mapnodes:gravel",{
 	description = "Gravel",
 	tiles = {"default_gravel.png"},
@@ -38,6 +45,7 @@ minetest.register_node("sm_mapnodes:bumper", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_bumper.obj",
 	tiles = {"sm_mapnodes_bumper.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -53,6 +61,7 @@ minetest.register_node("sm_mapnodes:train_1", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_train1.obj",
 	tiles = {"sm_mapnodes_train1.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -68,6 +77,7 @@ minetest.register_node("sm_mapnodes:train_2", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_train2.obj",
 	tiles = {"sm_mapnodes_train2.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -83,6 +93,7 @@ minetest.register_node("sm_mapnodes:train_3", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_train3.obj",
 	tiles = {"sm_mapnodes_train3.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -98,6 +109,7 @@ minetest.register_node("sm_mapnodes:wagon_1", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_wagon1.obj",
 	tiles = {"sm_mapnodes_wagon1.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -113,6 +125,7 @@ minetest.register_node("sm_mapnodes:wagon_2", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_wagon2.obj",
 	tiles = {"sm_mapnodes_wagon2.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
@@ -128,6 +141,7 @@ minetest.register_node("sm_mapnodes:wagon_3", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_wagon3.obj",
 	tiles = {"sm_mapnodes_wagon3.png"},
+	groups = {obstacle = 2},
 	use_texture_alpha = "opaque",
 	paramtype = "light",
 	sunlight_propagates = true,
