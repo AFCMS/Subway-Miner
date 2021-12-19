@@ -91,9 +91,9 @@ sm_game.map_sectors = {
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
 			{
-				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
-				{x=0, y=0, id=content_ids["sm_mapnodes:gravel2"]},
-				{x=1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
+				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
+				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=-1, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=0, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
@@ -107,16 +107,19 @@ sm_game.map_sectors = {
 	{
 		border = {
 			{
-				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				--{x=-1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
-				{x=1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
+				--{x=1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
 				{x=-1, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=0, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
 			{
 				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
-				{x=0, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				--{x=0, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=-1, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=0, y=1, id=content_ids["sm_mapnodes:rail"]},

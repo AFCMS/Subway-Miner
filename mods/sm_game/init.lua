@@ -5,6 +5,7 @@ local minetest = minetest
 local Settings = Settings
 
 local C = minetest.colorize
+local F = minetest.formspec_escape
 
 local vector = vector
 local math = math
@@ -13,7 +14,7 @@ local table = table
 
 local pairs = pairs
 local tonumber = tonumber
---local tostring = tostring
+local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
 
@@ -21,6 +22,16 @@ local settings = {
 	music = minetest.settings:get_bool("subwayminer.music", true),
 	speed_clipping = tonumber(minetest.settings:get("subwayminer.speed_clipping")) or 30
 }
+
+local function save_settings()
+	minetest.settings:set_bool("subwayminer.music", settings.music)
+	minetest.settings:set("subwayminer.speed_clipping", settings.speed_clipping)
+	if minetest.settings:write() then
+		minetest.log("action", "[sm_game] Config file saved sucesfully")
+	else
+		minetest.log("action", "[sm_game] Saving config file failed!")
+	end
+end
 
 --the game can't be played in multiplayer
 if not minetest.is_singleplayer() then
@@ -158,6 +169,7 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
 		"bgcolor[#080808BB;both;#58AFB9]",
+		--"bgcolor[blue;both;green]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
 	cache_player:set_inventory_formspec(table.concat({
@@ -232,7 +244,7 @@ minetest.register_entity("sm_game:player", {
 	walk_speed = 6,
 
 	zvel = function(self)
-		return math.min((12+(os.time()-sm_game.data.infos.init_gametime)/5), settings.speed_clipping) or 0
+		return math.min((10+(os.time()-sm_game.data.infos.init_gametime)/5), settings.speed_clipping) or 0
 	end,
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" then
@@ -306,28 +318,58 @@ local function get_main_menu(page)
 	if page == "main" then
 		local form = main_menu_header
 		form = form..table.concat({
-			"button[8,7;4,1;play;Play]",
+			"button[8,6;4,1;play;Play]",
+			"button[8,7;4,1;options;Options]",
 			"button[8,8;4,1;help;Help]",
 			"button[8,9;4,1;infos;Infos]",
 			"button[8,10;4,1;quit;Quit]",
 			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
 		})
 		return form
+	elseif page == "options" then
+		local form = main_menu_header
+		form = form..table.concat({
+			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
+				"<style color=#58AFB9 size=50><center><b>Options</b></center></style>",
+			})),
+			"checkbox[1,2;option_music;Enable Music;"..tostring(settings.music).."]",
+			"tooltip[option_music;"..F("Toggle Music").."]",
+			"label[1,2.75;Player Speed Clipping]",
+			"tooltip[1,2.75;4,0.25;"..F("At how much the player speed will be clipped (10-40)").."]",
+			"scrollbaroptions[min=10;max=40;smallstep=1;largestep=10]",
+			"scrollbar[1,3;5,0.5;<orientation>;option_speed_clipping;"..settings.speed_clipping.."]",
+			"button[1,4;4.25,1;option_reset_highscore;Reset Highscore]",
+			"button[0,0;2,1;back;Back]",
+			"button[0,11;2,1;option_save;Save]",
+		})
+		return form
 	elseif page == "infos" then
+		local form = main_menu_header
+		form = form..table.concat({
+			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
+				"<style color=#58AFB9 size=50><center><b>Informations</b></center></style>",
+				"<global size=25 color=#58AFB9>",
+				"This game is inspired by Subway-Surfers and Temple Run.\n",
+				"It was made by AFCM for the Minetest Game Jam 2021\n\n\n\n\n\n\n\n\n\n",
+				"Licence: GPLv3\n",
+				"Source Code: ",
+				"<action name=link_github>GitHub</action>",
+			})),
+			"button[0,0;2,1;back;Back]",
+		})
+		return form
+	elseif page == "help" then
 		local form = main_menu_header
 		form = form..table.concat({
 			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Help</b></center></style>",
 				"<global size=25 color=#58AFB9>",
-				"This game is a Subway-Surfers adaptation in the Minetest style\n",
-				"It was made by AFCM for the Minetest Game Jam 2021\n\n",
-				"Licence: GPLv3\n",
-				"Source Code: ",
-				"<action name=link_github>GitHub</action>",
-				--"<style color=red size=20>Right / Left - Change line</style>\n",
-				--"<style color=red size=20>Sneak - Pass under high barriers</style>\n",
-				--"<style color=red size=20>Jump - Jump</style>\n",
-				--"<style color=red size=20>Aux1 - Use ability</style>\n",
+				"Avoid the different obstacles and collect coins.\n",
+				"Your speed increase with time.\n",
+				"Move between lines using the left and right keys.\n",
+				"Use the jump key to jump above small barriers.\n",
+				"Use the sneak key to go under high barriers.\n",
+				"Avoid the trains.\n",
 			})),
 			"button[0,0;2,1;back;Back]",
 		})
@@ -346,10 +388,27 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			minetest.close_formspec("singleplayer", "sm_game:menu")
 			sm_game.set_state("game_loading", {init_gametime = os.time()})
 			cache_player:set_animation(model_animations["stand"], 40, 0)
+		elseif fields.options then
+			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("options"))
 		elseif fields.back then
 			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
 		elseif fields.infos then
 			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("infos"))
+		elseif fields.help then
+			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("help"))
+		elseif fields.option_music == "false" then
+			settings.music = false
+		elseif fields.option_music == "true" then
+			settings.music = true
+		elseif fields.option_reset_highscore then
+			sm_game.api.set_highscore(0)
+		elseif fields.option_save then
+			save_settings()
+		elseif fields.option_speed_clipping then
+			local e = minetest.explode_scrollbar_event(fields.option_speed_clipping)
+			if e.type == "CHG" then
+				settings.speed_clipping = e.value
+			end
 		elseif fields.help_txt == "action:link_github" then
 			minetest.chat_send_all(C("green", "Source Code: https://github.com/AFCMS/Subway-Miner"))
 		end
@@ -479,7 +538,31 @@ minetest.register_globalstep(function(dtime)
 			for _,obj in pairs(minetest.get_objects_inside_radius(pos, 0.9)) do
 				local ent = obj:get_luaentity()
 				if ent and ent.name == "sm_mapnodes:mese_coin" then
-					ent:capture()
+					minetest.add_particlespawner({
+						amount = 20,
+						time = 0.1,
+						minpos = pos,
+						maxpos = pos,
+						--minpos = vector.new(0,0,0),
+						--maxpos = vector.new(0,0,0),
+						minvel = {x=-4, y=-4, z=-4},
+						maxvel = {x=4, y=4, z=4},
+						--minacc = {x=-1, y=-1, z=-1},
+						--maxacc = {x=1, y=1, z=1},
+						minexptime = 0.1,
+						maxexptime = 0.3,
+						minsize = 1,
+						maxsize = 1.5,
+						--attached = object,
+						collisiondetection = false,
+						collision_removal = false,
+						object_collision = false,
+						vertical = false,
+						texture = "default_mese_crystal.png",
+						playername = "singleplayer",
+						glow = minetest.LIGHT_MAX,
+					})
+					obj:remove()
 					minetest.sound_play({name = "sm_game_coin"}, {to_player = "singleplayer"}, true)
 					infos.coins_count = infos.coins_count + 1
 				end
