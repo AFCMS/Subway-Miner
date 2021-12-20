@@ -313,6 +313,14 @@ local function is_line_valid(line)
 	return (line == -1 or line == 0 or line == 1)
 end
 
+local function divmod(a, b) return math.floor(a / b), a % b end
+
+local function format_duration(seconds)
+	local display_hours, seconds_left = divmod(seconds, 3600)
+	local display_minutes, display_seconds = divmod(seconds_left, 60)
+	return ("%02d:%02d:%02d"):format(display_hours, display_minutes, display_seconds)
+end
+
 local has_started = false
 
 minetest.after(2, function()
@@ -339,7 +347,7 @@ local function get_main_menu(page)
 				"<style color=#58AFB9 size=50><center><b>Stats</b></center></style>",
 				"<global size=25 color=#58AFB9>",
 				"<mono>Highscore:    "..string.format("%06.f", sm_game.api.get_highscore()).."</mono>\n",
-				"<mono>Playtime:     ".."1:12:24".."</mono>\n",
+				"<mono>Playtime:     "..format_duration(sm_game.api.get_playtime()).."</mono>\n",
 			})),
 		})
 		return form
@@ -356,6 +364,7 @@ local function get_main_menu(page)
 			"scrollbaroptions[min=10;max=40;smallstep=1;largestep=10]",
 			"scrollbar[1,3;5,0.5;<orientation>;option_speed_clipping;"..settings.speed_clipping.."]",
 			"button[1,4;4.25,1;option_reset_highscore;Reset Highscore]",
+			"button[1,5;4.25,1;option_reset_playtime;Reset Playtime]",
 			"button[0,0;2,1;back;Back]",
 			"button[0,11;2,1;option_save;Save]",
 		})
@@ -419,6 +428,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			settings.music = true
 		elseif fields.option_reset_highscore then
 			sm_game.api.set_highscore(0)
+		elseif fields.option_reset_playtime then
+			sm_game.api.set_playtime(0)
 		elseif fields.option_save then
 			save_settings()
 		elseif fields.option_speed_clipping then
@@ -604,8 +615,8 @@ minetest.register_globalstep(function(dtime)
 					local is_highscore = infos.coins_count > sm_game.api.get_highscore()
 					if is_highscore then
 						sm_game.api.set_highscore(infos.coins_count)
-						minetest.chat_send_all("New High Score!")
 					end
+					sm_game.api.set_playtime(sm_game.api.get_playtime() + (os.time() - infos.init_gametime))
 					local sh = infos.music_handler
 					sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
 				end
