@@ -128,6 +128,7 @@ sm_game.map_sectors = {
 		},
 		elements = {
 			{line=-1, pos=5, element=sm_game.map_elements.train2},
+			{line=1, pos=1, element=sm_game.map_elements.train1},
 			{line=1, pos=20, element=sm_game.map_elements.wagon3},
 			{line=0, pos=30, element=sm_game.map_elements.bumper1}
 		},

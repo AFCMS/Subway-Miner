@@ -525,15 +525,11 @@ minetest.register_globalstep(function(dtime)
 			if not infos.is_moving and not infos.is_sneaking and not infos.is_jumping then
 				local ctrl = cache_player:get_player_control()
 				if ctrl.right then
-					--minetest.chat_send_all("right")
 					if is_line_valid(infos.target_line + 1) then
-						--minetest.chat_send_all("rightc")
 						infos.target_line = infos.target_line + 1
 					end
 				elseif ctrl.left then
-					--minetest.chat_send_all("left")
 					if is_line_valid(infos.target_line - 1) then
-						--minetest.chat_send_all("leftc")
 						infos.target_line = infos.target_line - 1
 					end
 				elseif ctrl.sneak then
