@@ -487,7 +487,7 @@ minetest.register_globalstep(function(dtime)
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
 			cache_player:set_look_horizontal(0)
-			cache_player:set_look_vertical(0)
+			cache_player:set_look_vertical(-math.pi/2)
 		elseif gamestate == "game_loading" then
 			local time = os.time()
 			local gametime = infos.init_gametime
@@ -535,9 +535,6 @@ minetest.register_globalstep(function(dtime)
 			elseif ctime == 4 then
 				cache_player:hud_change(data.hud_ids.title, "text", "")
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
-				--cache_player:set_look_vertical(math.pi*2)
-				--cache_player:set_look_horizontal(math.pi)
-				--cache_player:set_look_horizontal(math.pi)
 				local sh = infos.music_handler
 				sm_game.set_state("game", {init_gametime = os.time(), music_handler = sh})
 			end
