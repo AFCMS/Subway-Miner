@@ -689,6 +689,20 @@ minetest.register_globalstep(function(dtime)
 	end
 end)
 
+minetest.register_abm({
+	label = "Coins Spawning",
+	nodenames = {"sm_mapnodes:rail"},
+	interval = 3,
+	chance = 20,
+	min_y = 0,
+    max_y = 0,
+	action = function(pos, node, active_object_count, active_object_count_wider)
+		if data.state == "game" then
+			minetest.add_entity(pos, "sm_mapnodes:mese_coin")
+		end
+	end,
+})
+
 dofile(modpath.."/storage.lua")
 dofile(modpath.."/builtin_modifications.lua")
 dofile(modpath.."/mapgen.lua")
