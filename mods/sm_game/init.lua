@@ -21,7 +21,7 @@ local modpath = minetest.get_modpath("sm_game")
 local setting_file = Settings(minetest.get_worldpath().."/sm_game.conf")
 
 local settings = {
-	music = setting_file:get_bool("subwayminer.music", true),
+	music = setting_file:get_bool("subwayminer.music", false),
 	speed_clipping = tonumber(setting_file:get("subwayminer.speed_clipping")) or 30
 }
 
@@ -519,7 +519,7 @@ minetest.register_globalstep(function(dtime)
 			end
 
 			if ctime == 0 then
-				cache_player:hud_change(data.hud_ids.coin_count, "text", "00000")
+				cache_player:hud_change(data.hud_ids.coin_count, "text", "000000")
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
