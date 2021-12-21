@@ -7,6 +7,7 @@ local minetest = minetest
 local modpath = minetest.get_modpath("sm_mapnodes")
 
 dofile(modpath.."/building_nodes.lua")
+dofile(modpath.."/entities.lua")
 
 minetest.register_abm({
 	label = "Coins Spawning",
@@ -16,7 +17,6 @@ minetest.register_abm({
 	min_y = 0,
     max_y = 0,
 	action = function(pos, node, active_object_count, active_object_count_wider)
-		--local pos2 = vector.add(pos, vector.new(0, 1, 0))
 		minetest.add_entity(pos, "sm_mapnodes:mese_coin")
 	end,
 })
