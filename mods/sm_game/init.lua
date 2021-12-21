@@ -137,6 +137,7 @@ local wait_hud_colors = {
 local loading_formspec = table.concat({
 	"formspec_version[4]",
 	"size[20,12]",
+	"bgcolor[#080808BB;both;#58AFB9]",
 	"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#58AFB9><b>Loading...</b>]",
 })
 
@@ -168,7 +169,6 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:set_moon({visible = false})
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
-		"bgcolor[#080808BB;both;#58AFB9]",
 		--"bgcolor[blue;both;green]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
@@ -330,6 +330,7 @@ end)
 local main_menu_header = table.concat({
 	"formspec_version[4]",
 	"size[20,12]",
+	"bgcolor[#080808BB;both;#58AFB9]",
 	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
 })
 
@@ -364,8 +365,7 @@ local function get_main_menu(page)
 			"tooltip[1,2.75;4,0.25;"..F("At how much the player speed will be clipped (10-40)").."]",
 			"scrollbaroptions[min=10;max=40;smallstep=1;largestep=10]",
 			"scrollbar[1,3;5,0.5;<orientation>;option_speed_clipping;"..settings.speed_clipping.."]",
-			"button[1,4;4.25,1;option_reset_highscore;Reset Highscore]",
-			"button[1,5;4.25,1;option_reset_playtime;Reset Playtime]",
+			"button[1,4;4.25,1;option_reset;Reset Stats]",
 			"button[0,0;2,1;back;Back]",
 			"button[0,11;2,1;option_save;Save]",
 		})
@@ -443,10 +443,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			settings.music = false
 		elseif fields.option_music == "true" then
 			settings.music = true
-		elseif fields.option_reset_highscore then
+		elseif fields.option_reset then
 			sm_game.api.set_highscore(0)
-		elseif fields.option_reset_playtime then
 			sm_game.api.set_playtime(0)
+			sm_game.api.set_playcount(0)
 		elseif fields.option_save then
 			save_settings()
 		elseif fields.option_speed_clipping then
@@ -625,6 +625,10 @@ minetest.register_globalstep(function(dtime)
 					is_crash = true
 				elseif obstacle_state == 2 then
 					if not infos.is_jumping then
+						is_crash = true
+					end
+				elseif obstacle_state == 3 then
+					if not infos.is_sneaking then
 						is_crash = true
 					end
 				end

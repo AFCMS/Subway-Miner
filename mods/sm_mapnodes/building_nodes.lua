@@ -57,6 +57,22 @@ minetest.register_node("sm_mapnodes:bumper", {
 	},
 })
 
+minetest.register_node("sm_mapnodes:bumper2", {
+	drawtype = "mesh",
+	mesh = "sm_mapnodes_bumper2.obj",
+	tiles = {"sm_mapnodes_bumper2.png"},
+	groups = {obstacle = 3},
+	use_texture_alpha = "opaque",
+	paramtype = "light",
+	sunlight_propagates = true,
+	is_ground_content = false,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
+	},
+})
+
 minetest.register_node("sm_mapnodes:train_1", {
 	drawtype = "mesh",
 	mesh = "sm_mapnodes_train1.obj",

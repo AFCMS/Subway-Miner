@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="64" height="64" viewBox="0 0 64 64"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+<desc>rail.blend, (Blender 3.0.0)</desc>
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="57.000,37.000 57.000,52.000 59.000,52.000 59.000,37.000 " />
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="47.000,19.000 47.000,34.000 63.000,34.000 63.000,19.000 " />
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="61.000,37.000 61.000,52.000 63.000,52.000 63.000,37.000 " />
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="63.000,16.000 63.000,1.000 47.000,1.000 47.000,16.000 " />
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="47.000,18.000 63.000,18.000 63.000,16.000 47.000,16.000 " />
+<polygon stroke="black" stroke-width="1" fill="rgb(204, 204, 204)" fill-opacity="0.25" points="63.000,34.000 47.000,34.000 47.000,36.000 63.000,36.000 " />
+
+</svg>

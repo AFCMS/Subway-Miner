@@ -53,6 +53,9 @@ sm_game.map_elements = {
 	bumper1 = {
 		{y=1, id=content_ids["sm_mapnodes:bumper"]}
 	},
+	bumper2 = {
+		{y=1, id=content_ids["sm_mapnodes:bumper2"]}
+	},
 	wagon1 = {
 		{y=1, id=content_ids["sm_mapnodes:wagon_1"]},
 		{y=1, id=content_ids["sm_mapnodes:wagon_2"]},
@@ -102,6 +105,7 @@ sm_game.map_sectors = {
 		elements = {
 			{line=1, pos=10, element=sm_game.map_elements.train4},
 			{line=-1, pos=30, element=sm_game.map_elements.train2},
+			{line=0, pos=0, element=sm_game.map_elements.bumper2}
 		},
 	},
 	{
