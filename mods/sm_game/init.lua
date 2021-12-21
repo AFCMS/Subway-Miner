@@ -486,16 +486,16 @@ minetest.register_globalstep(function(dtime)
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
-			cache_player:set_look_horizontal(math.pi*3/2)
-			cache_player:set_look_vertical(math.pi*3/2)
+			cache_player:set_look_horizontal(0)
+			cache_player:set_look_vertical(0)
 		elseif gamestate == "game_loading" then
 			local time = os.time()
 			local gametime = infos.init_gametime
 			local ctime = time - gametime
 
 			if not infos.is_sound then
-				cache_player:set_look_horizontal(math.pi*3/2)
-				cache_player:set_look_vertical(math.pi*3/2)
+				cache_player:set_look_horizontal(0)
+				cache_player:set_look_vertical(0)
 				if settings.music and not infos.music_handler then
 					infos.music_handler = minetest.sound_play({
 						name = "sm_game_game_music"
