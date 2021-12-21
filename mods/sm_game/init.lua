@@ -378,7 +378,7 @@ local function get_main_menu(page)
 				"It was made by AFCM for the Minetest Game Jam 2021\n\n\n\n\n\n\n\n\n\n",
 				"Licence: GPLv3\n",
 				"Source Code: ",
-				"<action name=link_github>GitHub</action>",
+				"<action name=link_github>https://github.com/AFCMS/Subway-Miner</action>",
 			})),
 			"button[0,0;2,1;back;Back]",
 		})
@@ -389,12 +389,12 @@ local function get_main_menu(page)
 			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Help</b></center></style>",
 				"<global size=25 color=#58AFB9>",
-				"Avoid the different obstacles and collect coins.\n",
+				"You drive the player between obstacles, trying to collect as many mese cristals as possible.\n",
 				"Your speed increase with time.\n",
 				"Move between lines using the left and right keys.\n",
 				"Use the jump key to jump above small barriers.\n",
-				"Use the sneak key to go under high barriers.\n",
-				"Avoid the trains.\n",
+				"Use the sneak key to go under high barriers.\n\n",
+				"You should turn on 3rd person view.\n",
 			})),
 			"button[0,0;2,1;back;Back]",
 		})
