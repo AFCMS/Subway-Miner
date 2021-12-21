@@ -1,6 +1,12 @@
 # Subway Miner
 AFCMS's submission to the Minetest Game Jam 2021
 
+This game is both inspired from Subway-Surfers and Temple Run.
+
+You drive the player between obstacles, trying to collect as many mese cristals as possible.
+
+The game fully works with Minetest 5.4.1, but I recommand using 5.5-dev to avoid some graphical issues (which are not related to the game itself)
+
 ## Credits
 
 Assets are made by me (CC-BY) except:
@@ -16,6 +22,7 @@ Minetest Game (CC BY-SA 3.0)
 - `default_sand.png`
 - `default_mese_post_light_side.png`
 - `default_mese_post_light_side_dark.png`
+- `default_fence_wood.png`
 
 Sounds:
 - [`sm_game_coin.ogg`](https://freesound.org/people/TreasureSounds/sounds/332629/) (CC-BY) 
