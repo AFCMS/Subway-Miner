@@ -640,14 +640,20 @@ minetest.register_globalstep(function(dtime)
 					sm_game.api.set_playcount(sm_game.api.get_playcount() + 1)
 					local sh = infos.music_handler
 
+					--remove all existing coins
 					for _,l in pairs(minetest.luaentities) do
 						if l.name == "sm_mapnodes:mese_coin" then
 							l.object:remove()
 						end
 					end
 
-					sm_game.set_state("game_end",
-						{score = infos.coins_count, high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
+					sm_game.set_state("game_end", {
+						playtime = os.time() - infos.init_gametime,
+						score = infos.coins_count,
+						high_score = is_highscore,
+						init_gametime = os.time(),
+						music_handler = sh,
+					})
 				end
 			end
 
@@ -690,7 +696,7 @@ minetest.register_globalstep(function(dtime)
 					cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 					sm_game.set_state("menu")
 					minetest.show_formspec("singleplayer", "sm_game:menu",
-						get_end_formspec(infos.score, infos.high_score, os.time() - infos.init_gametime))
+						get_end_formspec(infos.score, infos.high_score, infos.playtime))
 				end
 			end
 		end
