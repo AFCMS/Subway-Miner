@@ -57,7 +57,7 @@ end
 
 --local storage = minetest.get_mod_storage()
 
-local init_pos = vector.new(0, 1, -30900)
+local init_pos = vector.new(0, 1, -30910)
 
 sm_game = {
 	data = {
