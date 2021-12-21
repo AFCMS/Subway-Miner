@@ -86,6 +86,10 @@ sm_game.map_sectors = {
 	{
 		border = {
 			{
+				{x=-2, y=0, id=content_ids["sm_mapnodes:sand"]},
+				{x=2, y=0, id=content_ids["sm_mapnodes:sand"]},
+				{x=-2, y=1, id=content_ids["sm_mapnodes:fence_wood"]},
+				{x=2, y=1, id=content_ids["sm_mapnodes:fence_wood"]},
 				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
@@ -94,6 +98,10 @@ sm_game.map_sectors = {
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
 			{
+				{x=-2, y=0, id=content_ids["sm_mapnodes:sand"]},
+				{x=2, y=0, id=content_ids["sm_mapnodes:sand"]},
+				{x=-2, y=1, id=content_ids["sm_mapnodes:fence_wood"]},
+				{x=2, y=1, id=content_ids["sm_mapnodes:fence_wood"]},
 				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
@@ -111,18 +119,21 @@ sm_game.map_sectors = {
 	{
 		border = {
 			{
-				--{x=-1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
 				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
-				--{x=1, y=0, id=content_ids["sm_mapnodes:gravel2"]},
+				{x=-2, y=0, id=content_ids["sm_mapnodes:cobble"]},
+				{x=2, y=0, id=content_ids["sm_mapnodes:cobble"]},
 				{x=-1, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=0, y=1, id=content_ids["sm_mapnodes:rail"]},
 				{x=1, y=1, id=content_ids["sm_mapnodes:rail"]},
 			},
 			{
+				{x=-2, y=0, id=content_ids["sm_mapnodes:cobble"]},
+				{x=2, y=0, id=content_ids["sm_mapnodes:cobble"]},
+				{x=-2, y=1, id=content_ids["sm_mapnodes:cobble_wall"]},
+				{x=2, y=1, id=content_ids["sm_mapnodes:cobble_wall"]},
 				{x=-1, y=0, id=content_ids["sm_mapnodes:gravel"]},
-				--{x=0, y=0, id=content_ids["sm_mapnodes:gravel2"]},
 				{x=0, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=1, y=0, id=content_ids["sm_mapnodes:gravel"]},
 				{x=-1, y=1, id=content_ids["sm_mapnodes:rail"]},
@@ -131,7 +142,7 @@ sm_game.map_sectors = {
 			},
 		},
 		elements = {
-			{line=-1, pos=5, element=sm_game.map_elements.train2},
+			{line=-1, pos=10, element=sm_game.map_elements.train2},
 			{line=0, pos=25, element=sm_game.map_elements.wagon2},
 			{line=1, pos=20, element=sm_game.map_elements.wagon3},
 			{line=0, pos=40, element=sm_game.map_elements.bumper1},
@@ -142,7 +153,7 @@ sm_game.map_sectors = {
 	},
 }
 
-local pcgrandom = PseudoRandom(minetest.get_mapgen_setting("seed"))
+local pcgrandom = PseudoRandom(os.time())
 
 minetest.register_on_generated(function(minp, maxp, seed)
 	--minetest.chat_send_all(string.format("minp=%s, maxp=%s", minetest.pos_to_string(minp), minetest.pos_to_string(maxp)))

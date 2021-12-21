@@ -3,13 +3,17 @@ AFCMS's submission to the Minetest Game Jam 2021
 
 ## Credits
 
-Textures are made by me (CC-BY) except:
+Assets are made by me (CC-BY) except:
 
 Minetest Game (CC BY-SA 3.0)
 - `gui_formbg.png`
 - `default_gravel.png`
 - `default_mese_crystal.png`
 - `default_tool_diamondpick.png`
+- `character.png`
+- `character.b3d`
+- `default_cobble.png`
+- `default_sand.png`
 
 Sounds:
 - [`sm_game_coin.ogg`](https://freesound.org/people/TreasureSounds/sounds/332629/) (CC-BY) 

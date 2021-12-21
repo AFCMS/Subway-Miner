@@ -168,3 +168,62 @@ minetest.register_node("sm_mapnodes:wagon_3", {
 		fixed = {-1/2, -1/2, -1/2, 1/2, -1/2+1/16, 1/2},
 	},
 })
+
+
+--DECO BLOCKS
+
+minetest.register_node("sm_mapnodes:cobble", {
+	tiles = {"default_cobble.png"},
+})
+
+minetest.register_node("sm_mapnodes:sand", {
+	tiles = {"default_sand.png"},
+})
+
+minetest.register_node("sm_mapnodes:cobble_wall", {
+	drawtype = "nodebox",
+	node_box = {
+		type = "connected",
+		fixed = {-1/4, -1/2, -1/4, 1/4, 1/2, 1/4},
+		-- connect_bottom =
+		connect_front = {-3/16, -1/2, -1/2,  3/16, 3/8, -1/4},
+		connect_left = {-1/2, -1/2, -3/16, -1/4, 3/8,  3/16},
+		connect_back = {-3/16, -1/2,  1/4,  3/16, 3/8,  1/2},
+		connect_right = { 1/4, -1/2, -3/16,  1/2, 3/8,  3/16},
+	},
+	collision_box = {
+		type = "connected",
+		fixed = {-1/4, -1/2, -1/4, 1/4, 1/2, 1/4},
+		-- connect_top =
+		-- connect_bottom =
+		connect_front = {-1/4,-1/2,-1/2,1/4,1/2,-1/4},
+		connect_left = {-1/2,-1/2,-1/4,-1/4,1/2,1/4},
+		connect_back = {-1/4,-1/2,1/4,1/4,1/2,1/2},
+		connect_right = {1/4,-1/2,-1/4,1/2,1/2,1/4},
+	},
+	connects_to = { "group:wall", "group:stone", "group:fence" },
+	sunlight_propagates = true,
+	tiles = {"default_cobble.png"},
+	walkable = true,
+})
+
+minetest.register_node("sm_mapnodes:fence_wood", {
+	drawtype = "nodebox",
+	node_box = {
+		type = "connected",
+		fixed = {-1/8, -1/2, -1/8, 1/8, 1/2, 1/8},
+		connect_front = {{-1/16,  3/16, -1/2,   1/16,  5/16, -1/8 },
+			{-1/16, -5/16, -1/2,   1/16, -3/16, -1/8 }},
+		connect_left =  {{-1/2,   3/16, -1/16, -1/8,   5/16,  1/16},
+			{-1/2,  -5/16, -1/16, -1/8,  -3/16,  1/16}},
+		connect_back =  {{-1/16,  3/16,  1/8,   1/16,  5/16,  1/2 },
+			{-1/16, -5/16,  1/8,   1/16, -3/16,  1/2 }},
+		connect_right = {{ 1/8,   3/16, -1/16,  1/2,   5/16,  1/16},
+			{ 1/8,  -5/16, -1/16,  1/2,  -3/16,  1/16}}
+	},
+	connects_to = {"group:fence", "group:wood", "group:tree", "group:wall"},
+	tiles = {"default_fence_wood.png"},
+	sunlight_propagates = true,
+	is_ground_content = false,
+	groups = {fence = 1},
+})

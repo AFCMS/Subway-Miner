@@ -172,20 +172,7 @@ minetest.register_on_joinplayer(function(player)
 		--"bgcolor[blue;both;green]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
-	cache_player:set_inventory_formspec(table.concat({
-		"formspec_version[4]",
-		"size[5,5]",
-		"position[1,0.5]",
-		"anchor[1,0.5]",
-		"no_prepend[]",
-		"background9[5,5;1,1;gui_formbg.png;true;10]",
-		string.format("hypertext[0.5,0.5;4.5,4.5;help;%s]", table.concat({
-			"<style color=red size=20>Right / Left - Change line</style>\n",
-			"<style color=red size=20>Sneak - Pass under high barriers</style>\n",
-			"<style color=red size=20>Jump - Jump</style>\n",
-			"<style color=red size=20>Aux1 - Use ability</style>\n",
-		})),
-	}))
+	cache_player:set_inventory_formspec("")
 	data.hud_ids.coin_icon = cache_player:hud_add({
 		hud_elem_type = "image",
 		position      = {x=0, y=0},
@@ -230,7 +217,17 @@ minetest.register_on_joinplayer(function(player)
 		number        = 0xFFFFFF,
 		z_index       = 100,
 	})
-	data.hud_ids.subtitle = cache_player:hud_add({
+	data.hud_ids.title_bg = cache_player:hud_add({
+		hud_elem_type = "image",
+		position      = {x = 0.5, y = 0.5},
+		name          = "title_bg",
+		scale         = {x = 2, y = 2},
+		text          = "blank.png",
+		alignment     = {x = 0, y = -1.3},
+		size          = { x=100, y=100 },
+		z_index       = -1,
+	})
+	--[[data.hud_ids.subtitle = cache_player:hud_add({
 		hud_elem_type = "text",
 		position      = {x = 0.5, y = 0.6},
 		alignment     = {x = 0, y = -1.3},
@@ -239,7 +236,7 @@ minetest.register_on_joinplayer(function(player)
 		size          = {x = 3},
 		number        = 0xFFFFFF,
 		z_index       = 100,
-	})
+	})]]
 
 	minetest.show_formspec("singleplayer", "sm_game:loading", loading_formspec)
 end)
@@ -524,6 +521,7 @@ minetest.register_globalstep(function(dtime)
 				cache_player:hud_change(data.hud_ids.coin_count, "text", "00000")
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 			elseif ctime == 1 then
 				cache_player:hud_change(data.hud_ids.title, "text", "2..")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[2])
@@ -535,6 +533,7 @@ minetest.register_globalstep(function(dtime)
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[4])
 			elseif ctime == 4 then
 				cache_player:hud_change(data.hud_ids.title, "text", "")
+				cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 				--cache_player:set_look_vertical(math.pi*2)
 				--cache_player:set_look_horizontal(math.pi)
 				--cache_player:set_look_horizontal(math.pi)
@@ -658,15 +657,16 @@ minetest.register_globalstep(function(dtime)
 			if not infos.is_hud_shown then
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
 				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 				cache_player:set_animation(model_animations["lay"], 40, 0)
 				if settings.music and infos.music_handler then
 					minetest.sound_fade(infos.music_handler, 4, 0)
 					infos.music_handler = nil
 				end
-				if infos.high_score then
+				--[[if infos.high_score then
 					cache_player:hud_change(data.hud_ids.subtitle, "text", "New Highscore!")
 					cache_player:hud_change(data.hud_ids.subtitle, "number", wait_hud_colors[4])
-				end
+				end]]
 				infos.is_hud_shown = true
 			end
 			if not infos.is_emerging then
@@ -687,7 +687,8 @@ minetest.register_globalstep(function(dtime)
 				if obj then
 					obj:set_pos(init_pos)
 					cache_player:hud_change(data.hud_ids.title, "text", "")
-					cache_player:hud_change(data.hud_ids.subtitle, "text", "")
+					--cache_player:hud_change(data.hud_ids.subtitle, "text", "")
+					cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 					sm_game.set_state("menu")
 					minetest.show_formspec("singleplayer", "sm_game:menu",
 						get_end_formspec(infos.score, infos.high_score, os.time() - infos.init_gametime))
