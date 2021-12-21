@@ -404,6 +404,20 @@ local function get_main_menu(page)
 	end
 end
 
+local function get_end_formspec(score, is_highscore, playtime)
+	return table.concat({
+		main_menu_header,
+		string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
+			"<style color=#58AFB9 size=50><center><b>Summary</b></center></style>",
+			"<global size=25 color=#58AFB9>",
+			is_highscore and "<style color=#2AFF00><center><b>New Highscore!</b></center></style>" or "\n",
+			"<mono>Score:        "..string.format("%06.f", score).."</mono>\n",
+			"<mono>Playtime:     "..format_duration(playtime).."</mono>\n",
+		})),
+		"button[9,11;2,1;game_ok;Ok]",
+	})
+end
+
 --close the game if the player try to quit the loading formspec
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "sm_game:loading" and fields.quit then
@@ -423,6 +437,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("infos"))
 		elseif fields.help then
 			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("help"))
+		elseif fields.game_ok then
+			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
 		elseif fields.option_music == "false" then
 			settings.music = false
 		elseif fields.option_music == "true" then
@@ -620,7 +636,7 @@ minetest.register_globalstep(function(dtime)
 					sm_game.api.set_playtime(sm_game.api.get_playtime() + (os.time() - infos.init_gametime))
 					sm_game.api.set_playcount(sm_game.api.get_playcount() + 1)
 					local sh = infos.music_handler
-					sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
+					sm_game.set_state("game_end", {score = infos.coins_count, high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
 				end
 			end
 
@@ -660,7 +676,8 @@ minetest.register_globalstep(function(dtime)
 					cache_player:hud_change(data.hud_ids.title, "text", "")
 					cache_player:hud_change(data.hud_ids.subtitle, "text", "")
 					sm_game.set_state("menu")
-					minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("main"))
+					minetest.show_formspec("singleplayer", "sm_game:menu",
+						get_end_formspec(infos.score, infos.high_score, os.time() - infos.init_gametime))
 				end
 			end
 		end
