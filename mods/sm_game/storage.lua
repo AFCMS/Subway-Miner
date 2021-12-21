@@ -15,3 +15,11 @@ end
 function sm_game.api.set_playtime(val)
 	storage:set_int("playtime", val)
 end
+
+function sm_game.api.get_playcount()
+	return storage:get_int("playcount")
+end
+
+function sm_game.api.set_playcount(val)
+	storage:set_int("playcount", val)
+end

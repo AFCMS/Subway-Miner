@@ -347,6 +347,7 @@ local function get_main_menu(page)
 				"<style color=#58AFB9 size=50><center><b>Stats</b></center></style>",
 				"<global size=25 color=#58AFB9>",
 				"<mono>Highscore:    "..string.format("%06.f", sm_game.api.get_highscore()).."</mono>\n",
+				"<mono>Playcount:    "..string.format("%06.f", sm_game.api.get_playcount()).."</mono>\n",
 				"<mono>Playtime:     "..format_duration(sm_game.api.get_playtime()).."</mono>\n",
 			})),
 		})
@@ -617,6 +618,7 @@ minetest.register_globalstep(function(dtime)
 						sm_game.api.set_highscore(infos.coins_count)
 					end
 					sm_game.api.set_playtime(sm_game.api.get_playtime() + (os.time() - infos.init_gametime))
+					sm_game.api.set_playcount(sm_game.api.get_playcount() + 1)
 					local sh = infos.music_handler
 					sm_game.set_state("game_end", {high_score = is_highscore, init_gametime = os.time(), music_handler = sh})
 				end
