@@ -227,3 +227,25 @@ minetest.register_node("sm_mapnodes:fence_wood", {
 	is_ground_content = false,
 	groups = {fence = 1},
 })
+
+minetest.register_node("sm_mapnodes:post_light", {
+	drawtype = "nodebox",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-2 / 16, -8 / 16, -2 / 16, 2 / 16, 8 / 16, 2 / 16},
+		},
+	},
+	paramtype = "light",
+	tiles = {
+		"default_fence_wood.png",
+		"default_fence_wood.png",
+		"default_fence_wood.png^default_mese_post_light_side_dark.png^[makealpha:0,0,0",
+		"default_fence_wood.png^default_mese_post_light_side_dark.png^[makealpha:0,0,0",
+		"default_fence_wood.png^default_mese_post_light_side.png^[makealpha:0,0,0",
+		"default_fence_wood.png^default_mese_post_light_side.png^[makealpha:0,0,0",
+	},
+	use_texture_alpha = "opaque",
+	light_source = minetest.LIGHT_MAX,
+	sunlight_propagates = true,
+})

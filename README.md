@@ -14,6 +14,8 @@ Minetest Game (CC BY-SA 3.0)
 - `character.b3d`
 - `default_cobble.png`
 - `default_sand.png`
+- `default_mese_post_light_side.png`
+- `default_mese_post_light_side_dark.png`
 
 Sounds:
 - [`sm_game_coin.ogg`](https://freesound.org/people/TreasureSounds/sounds/332629/) (CC-BY) 
