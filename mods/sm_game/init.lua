@@ -702,8 +702,8 @@ minetest.register_abm({
 	nodenames = {"sm_mapnodes:rail"},
 	interval = 3,
 	chance = 20,
-	min_y = 0,
-    max_y = 0,
+	min_y = 1,
+    max_y = 1,
 	action = function(pos, node, active_object_count, active_object_count_wider)
 		if data.state == "game" then
 			minetest.add_entity(pos, "sm_mapnodes:mese_coin")
