@@ -169,7 +169,6 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:set_moon({visible = false})
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
-		--"bgcolor[blue;both;green]",
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
 	}))
 	cache_player:set_inventory_formspec("")
