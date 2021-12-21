@@ -1,8 +1,0 @@
-#    Is music enabled
-#    default: true
-subwayminer.music (Enable Music) bool true
-
-#    At how much will the player speed be clipped
-#    Above 40 the game become really unplayable
-#    default: 30
-subwayminer.speed_clipping (Speed Clipping) int 20 10 40

@@ -18,15 +18,17 @@ local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
 
+local setting_file = Settings(minetest.get_worldpath().."/sm_game.conf")
+
 local settings = {
-	music = minetest.settings:get_bool("subwayminer.music", true),
-	speed_clipping = tonumber(minetest.settings:get("subwayminer.speed_clipping")) or 30
+	music = setting_file:get_bool("subwayminer.music", true),
+	speed_clipping = tonumber(setting_file:get("subwayminer.speed_clipping")) or 30
 }
 
 local function save_settings()
-	minetest.settings:set_bool("subwayminer.music", settings.music)
-	minetest.settings:set("subwayminer.speed_clipping", settings.speed_clipping)
-	if minetest.settings:write() then
+	setting_file:set_bool("subwayminer.music", settings.music)
+	setting_file:set("subwayminer.speed_clipping", settings.speed_clipping)
+	if setting_file:write() then
 		minetest.log("action", "[sm_game] Config file saved sucesfully")
 	else
 		minetest.log("action", "[sm_game] Saving config file failed!")
