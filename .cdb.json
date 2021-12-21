@@ -3,6 +3,7 @@
     "title": "Subway Miner",
     "name": "subway_miner",
     "short_description": "A Subway Surfer inspired game",
+	"dev_state": "BETA",
     "tags": ["jam_game_2021", "singleplayer"],
     "content_warnings": [],
     "license": "GPL-3.0-or-later",
