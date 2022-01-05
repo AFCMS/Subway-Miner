@@ -21,7 +21,7 @@ local modpath = minetest.get_modpath("sm_game")
 local setting_file = Settings(minetest.get_worldpath().."/sm_game.conf")
 
 local settings = {
-	music = setting_file:get_bool("subwayminer.music", false),
+	music = setting_file:get_bool("subwayminer.music", true),
 	speed_clipping = tonumber(setting_file:get("subwayminer.speed_clipping")) or 30
 }
 
