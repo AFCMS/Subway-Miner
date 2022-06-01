@@ -361,28 +361,28 @@ local function achievements_list()
 		local v = sm_game.api.achievements[n]
 		o = o..table.concat({
 			"box[0,"..(id*1.2)..";8,1;#232323]",
-			"image[0.05,".. 0.05 + (id*1.2)..";0.9,0.9;"..F(sm_game.api.player_achievements[n] and v.icon or v.icon.."^[multiply:#000000").."]",
-			--"label[1,".. 0.3 + (id*1.2)..";"..F(v.description..(sm_game.api.player_achievements[k] and " (Unlocked)" or " (Not unlocked)")).."]"
+			"image[0.05,".. 0.05 + (id*1.2)..";0.9,0.9;"..
+				F(sm_game.api.player_achievements[n] and v.icon or v.icon.."^[multiply:#000000").."]",
 			string.format("hypertext[1,".. 0.1 + (id*1.2)..";18,10;label;%s]",
-				"<style color=#58AFB9 size=15><b>"..F(v.description..(sm_game.api.player_achievements[n] and "" or " (Locked)")).."</b></style>\n"..
+				"<style color=#58AFB9 size=15><b>"..F(v.description..(sm_game.api.player_achievements[n] and "" or " (Locked)"))..
+				"</b></style>\n"..
 				"<style color=#468289 size=13><b>"..F(v.long_description).."</b></style>"
 			),
 			sm_game.api.player_achievements[n] and "" or "box[0,"..(id*1.2)..";8,1;#00000066]",
 		})
 	end
 	--for k,v in pairs(sm_game.api.achievements) do
-		
 	--end
 	return o
 end
 
-local function c_entries(t)
+--[[local function c_entries(t)
 	local c = 0
 	for _,_ in pairs(t) do
 		c = c + 1
 	end
 	return c
-end
+end]]
 
 local function get_main_menu(page)
 	if page == "main" then
