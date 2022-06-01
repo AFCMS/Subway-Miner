@@ -18,3 +18,11 @@ end
 function minetest.calculate_knockback()
 	return 0
 end
+
+function minetest.send_join_message(_)
+	return ""
+end
+
+function minetest.send_leave_message(_)
+	return ""
+end
