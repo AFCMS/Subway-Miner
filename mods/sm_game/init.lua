@@ -332,6 +332,58 @@ local main_menu_header = table.concat({
 	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
 })
 
+local function sort_achievements()
+	local s = {}
+	for n,_ in pairs(sm_game.api.achievements) do
+		table.insert(s, n)
+	end
+
+	table.sort(s, function(a, b)
+		local aa = sm_game.api.achievements[a]
+		local bb = sm_game.api.achievements[b]
+
+		if sm_game.api.player_achievements[a] and not sm_game.api.player_achievements[b] then
+			return true
+		end
+		return aa.rarity < bb.rarity
+	end)
+
+	return s
+end
+
+
+local function achievements_list()
+	local sorted_achievements = sort_achievements()
+	local o = ""
+	--local id = 0
+	for i,n in ipairs(sorted_achievements) do
+		local id = i - 1
+		local v = sm_game.api.achievements[n]
+		o = o..table.concat({
+			"box[0,"..(id*1.2)..";8,1;#232323]",
+			"image[0.05,".. 0.05 + (id*1.2)..";0.9,0.9;"..F(sm_game.api.player_achievements[n] and v.icon or v.icon.."^[multiply:#000000").."]",
+			--"label[1,".. 0.3 + (id*1.2)..";"..F(v.description..(sm_game.api.player_achievements[k] and " (Unlocked)" or " (Not unlocked)")).."]"
+			string.format("hypertext[1,".. 0.1 + (id*1.2)..";18,10;label;%s]",
+				"<style color=#58AFB9 size=15><b>"..F(v.description..(sm_game.api.player_achievements[n] and "" or " (Locked)")).."</b></style>\n"..
+				"<style color=#468289 size=13><b>"..F(v.long_description).."</b></style>"
+			),
+			sm_game.api.player_achievements[n] and "" or "box[0,"..(id*1.2)..";8,1;#00000066]",
+		})
+	end
+	--for k,v in pairs(sm_game.api.achievements) do
+		
+	--end
+	return o
+end
+
+local function c_entries(t)
+	local c = 0
+	for _,_ in pairs(t) do
+		c = c + 1
+	end
+	return c
+end
+
 local function get_main_menu(page)
 	if page == "main" then
 		local form = main_menu_header
@@ -342,6 +394,9 @@ local function get_main_menu(page)
 			"button[8,9;4,1;infos;Infos]",
 			"button[8,10;4,1;quit;Quit]",
 			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
+			--"image[13,1;5,1;"..F("sm_game_score_hud.png^[brighten").."]",
+			--"image[13,1;1,1;"..F("default_mese_crystal.png").."]",
+			--"label[13,1;ggg]",
 			string.format("hypertext[13,1;6,10;info_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Stats</b></center></style>",
 				"<global size=25 color=#58AFB9>",
@@ -349,6 +404,11 @@ local function get_main_menu(page)
 				"<mono>Playcount:    "..string.format("%06.f", sm_game.api.get_playcount()).."</mono>\n",
 				"<mono>Playtime:     "..format_duration(sm_game.api.get_playtime()).."</mono>\n",
 			})),
+			"scrollbar[19,5;0.25,6;vertical;ascroll;0]",
+			--"scroll_container[13,5;5,".. 1.2*c_entries(sm_game.api.achievements) ..";ascroll;vertical;0.1]",
+			"scroll_container[13,5;5,6;ascroll;vertical;0.1]",
+			achievements_list(),
+			"scroll_container_end[]",
 		})
 		return form
 	elseif page == "options" then
@@ -402,7 +462,7 @@ local function get_main_menu(page)
 	end
 end
 
-local function get_end_formspec(score, is_highscore, playtime)
+local function get_end_formspec(score, is_highscore, playtime, achievements)
 	return table.concat({
 		main_menu_header,
 		string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
@@ -411,6 +471,7 @@ local function get_end_formspec(score, is_highscore, playtime)
 			is_highscore and "<style color=#2AFF00><center><b>New Highscore!</b></center></style>" or "\n",
 			"<mono>Score:        "..string.format("%06.f", score).."</mono>\n",
 			"<mono>Playtime:     "..format_duration(playtime).."</mono>\n",
+			dump(achievements)
 		})),
 		"button[9,11;2,1;game_ok;Ok]",
 	})
@@ -445,6 +506,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			sm_game.api.set_highscore(0)
 			sm_game.api.set_playtime(0)
 			sm_game.api.set_playcount(0)
+			sm_game.api.set_coin_count(0)
+			sm_game.api.player_achievements = {}
 		elseif fields.option_save then
 			save_settings()
 		elseif fields.option_speed_clipping then
@@ -567,10 +630,18 @@ minetest.register_globalstep(function(dtime)
 				end
 			end
 
-			if sm_game.data.infos.is_sneaking then
-				if os.clock() > sm_game.data.infos.sneak_timeout + 0.5 then
-					sm_game.data.infos.is_sneaking = false
-					sm_game.data.infos.sneak_timeout = nil
+			if infos.is_sneaking then
+				--cache_player:set_eye_offset(vector.zero(), vector.new(0, -10, 0))
+				cache_player:set_properties({eye_height = 0.1})
+			else
+				--cache_player:set_eye_offset(vector.zero(), vector.zero())
+				cache_player:set_properties({eye_height = 0.4})
+			end
+
+			if infos.is_sneaking then
+				if os.clock() > infos.sneak_timeout + 0.5 then
+					infos.is_sneaking = false
+					infos.sneak_timeout = nil
 				end
 			end
 
@@ -637,6 +708,7 @@ minetest.register_globalstep(function(dtime)
 					end
 					sm_game.api.set_playtime(sm_game.api.get_playtime() + (os.time() - infos.init_gametime))
 					sm_game.api.set_playcount(sm_game.api.get_playcount() + 1)
+					sm_game.api.grant_achievement("first")
 					local sh = infos.music_handler
 
 					--remove all existing coins
@@ -646,12 +718,31 @@ minetest.register_globalstep(function(dtime)
 						end
 					end
 
+					--calculate achievements
+
+					local achievements = {}
+
+					local playcount = sm_game.api.get_playcount()
+
+					if not sm_game.api.player_achievements["adict"] and playcount >= 100 then
+						table.insert(achievements, "adict")
+					end
+
+					if not sm_game.api.player_achievements["100coins"] and infos.coins_count >= 100 then
+						table.insert(achievements, "100coins")
+					end
+
+					for _,n in ipairs(achievements) do
+						sm_game.api.grant_achievement(n)
+					end
+
 					sm_game.set_state("game_end", {
 						playtime = os.time() - infos.init_gametime,
 						score = infos.coins_count,
 						high_score = is_highscore,
 						init_gametime = os.time(),
 						music_handler = sh,
+						achievements = achievements,
 					})
 				end
 			end
@@ -695,7 +786,7 @@ minetest.register_globalstep(function(dtime)
 					cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 					sm_game.set_state("menu")
 					minetest.show_formspec("singleplayer", "sm_game:menu",
-						get_end_formspec(infos.score, infos.high_score, infos.playtime))
+						get_end_formspec(infos.score, infos.high_score, infos.playtime, infos.achievements))
 				end
 			end
 		end
