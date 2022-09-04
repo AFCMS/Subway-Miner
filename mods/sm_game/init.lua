@@ -129,11 +129,12 @@ local model_animations = {
 	--sit       = {x = 81,  y = 160},
 }
 
-local wait_hud_colors = {
-	0xFF0300, --red
-	0xFF8000, --orange
-	0xFFDB00, --yellow
-	0x2AFF00, --green
+
+local hud_colors = {
+	red = 0xFF0300,
+	orange = 0xFF8000,
+	yellow = 0xFFDB00,
+	green = 0x2AFF00,
 }
 
 local loading_formspec = table.concat({
@@ -592,17 +593,17 @@ minetest.register_globalstep(function(dtime)
 			if ctime == 0 then
 				cache_player:hud_change(data.hud_ids.coin_count, "text", "000000")
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.red)
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 			elseif ctime == 1 then
 				cache_player:hud_change(data.hud_ids.title, "text", "2..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[2])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.orange)
 			elseif ctime == 2 then
 				cache_player:hud_change(data.hud_ids.title, "text", "1..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[3])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.yellow)
 			elseif ctime == 3 then
 				cache_player:hud_change(data.hud_ids.title, "text", "Go!")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[4])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.green)
 			elseif ctime == 4 then
 				cache_player:hud_change(data.hud_ids.title, "text", "")
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
@@ -777,7 +778,7 @@ minetest.register_globalstep(function(dtime)
 		elseif gamestate == "game_end" then
 			if not infos.is_hud_shown then
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.red)
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 				cache_player:set_animation(model_animations["lay"], 40, 0)
 				if settings.music and infos.music_handler then
@@ -786,7 +787,7 @@ minetest.register_globalstep(function(dtime)
 				end
 				--[[if infos.high_score then
 					cache_player:hud_change(data.hud_ids.subtitle, "text", "New Highscore!")
-					cache_player:hud_change(data.hud_ids.subtitle, "number", wait_hud_colors[4])
+					cache_player:hud_change(data.hud_ids.subtitle, "number", hud_colors.green)
 				end]]
 				infos.is_hud_shown = true
 			end
