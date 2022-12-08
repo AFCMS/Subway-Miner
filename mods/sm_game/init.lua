@@ -138,7 +138,7 @@ local hud_colors = {
 }
 
 local loading_formspec = table.concat({
-	"formspec_version[4]",
+	"formspec_version[6]",
 	"size[20,12]",
 	"bgcolor[#080808BB;both;#58AFB9]",
 	"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#58AFB9><b>Loading...</b>]",
@@ -335,7 +335,7 @@ minetest.after(2, function()
 end)
 
 local main_menu_header = table.concat({
-	"formspec_version[4]",
+	"formspec_version[6]",
 	"size[20,12]",
 	"bgcolor[#080808BB;both;#58AFB9]",
 	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
@@ -368,7 +368,8 @@ local function achievements_list()
 		local id = i - 1
 		local v = sm_game.api.achievements[n]
 		o = o .. table.concat({
-			"box[0," .. (id * 1.2) .. ";8,1;#232323]",
+			--"box[0," .. (id * 1.2) .. ";8,1;#232323]",
+			"image[0," .. (id * 1.2) .. ";8,1;gui_formbg.png;10]",
 			"image[0.05," .. 0.05 + (id * 1.2) .. ";0.9,0.9;" ..
 				F(sm_game.api.player_achievements[n] and v.icon or v.icon .. "^[multiply:#000000") .. "]",
 			string.format("hypertext[1," .. 0.1 + (id * 1.2) .. ";18,10;label;%s]",
