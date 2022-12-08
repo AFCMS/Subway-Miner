@@ -40,14 +40,21 @@ function sm_game.api.get_coin_count()
 	return storage:get_int("coins")
 end
 
+---@class achievement_definition: table
+---@field icon string
+---@field rarity integer
+---@field description string
+---@field long_description string
+
 ---@type table<string, true>
+---@diagnostic disable-next-line: assign-type-mismatch
 sm_game.api.player_achievements = minetest.parse_json(storage:get_string("achievements")) or {}
 
----@type table<string, table>
+---@type table<string, achievement_definition>
 sm_game.api.achievements = {}
 
 ---@param name string
----@param def table
+---@param def achievement_definition
 function sm_game.api.register_achievement(name, def)
 	sm_game.api.achievements[name] = def
 end
@@ -58,7 +65,7 @@ function sm_game.api.grant_achievement(name)
 end
 
 minetest.register_on_shutdown(function()
-	storage:set_string("achievements", minetest.write_json(sm_game.api.player_achievements))
+	storage:set_string("achievements", assert(minetest.write_json(sm_game.api.player_achievements)))
 end)
 
 sm_game.api.register_achievement("first", {

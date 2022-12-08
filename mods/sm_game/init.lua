@@ -343,6 +343,7 @@ local main_menu_header = table.concat({
 })
 
 local function sort_achievements()
+	---@type table<string, achievement_definition>
 	local s = {}
 	for n, _ in pairs(sm_game.api.achievements) do
 		table.insert(s, n)
