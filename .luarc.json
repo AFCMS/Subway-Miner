@@ -1,0 +1,5 @@
+{
+  "runtime.version": "LuaJIT",
+  "diagnostics.disable": ["lowercase-global"],
+  "format.enable": true
+}
