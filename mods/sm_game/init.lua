@@ -43,6 +43,7 @@ end
 
 --switch the mab backend to RAM only
 --this is an ugly hack
+--TODO: remove after 5.7 release
 local worldmt = Settings(minetest.get_worldpath() .. "/world.mt")
 if worldmt:get("backend") ~= "dummy" then
 	worldmt:set("backend", "dummy")
