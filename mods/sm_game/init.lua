@@ -113,6 +113,7 @@ end
 
 local data = sm_game.data
 
+---@type ObjectRef
 local cache_player
 --local cache_chunk
 
@@ -554,10 +555,10 @@ minetest.register_globalstep(function(dtime)
 			else
 				cache_player:set_pos(init_pos)
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(assert(attach), "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 
 				local itementity = minetest.add_entity(init_pos, "sm_mapnodes:pick")
-				itementity:set_attach(cache_player, "Arm_Right", vector.new(0, 5.5, 3), vector.new(-90, 225, 90))
+				assert(itementity):set_attach(cache_player, "Arm_Right", vector.new(0, 5.5, 3), vector.new(-90, 225, 90))
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
@@ -620,7 +621,7 @@ minetest.register_globalstep(function(dtime)
 				minetest.log("error", "[sm_game] ATTACH NOT FOUND!, creating new attachment!")
 
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(assert(attach), "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 			end
 
 			if not infos.is_moving and not infos.is_sneaking and not infos.is_jumping then
