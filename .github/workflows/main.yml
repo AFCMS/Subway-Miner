@@ -14,6 +14,11 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Type Check Code Base
         uses: mrcjkb/lua-typecheck-action@v0.1.1
+        with:
+          checklevel: Warning
+          directories: |
+            mods
+          configpath: ".luarc.json"
