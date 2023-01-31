@@ -18,7 +18,7 @@ local tostring = tostring
 
 local modpath = minetest.get_modpath("sm_game")
 
-local setting_file = Settings(minetest.get_worldpath().."/sm_game.conf")
+local setting_file = Settings(minetest.get_worldpath() .. "/sm_game.conf")
 
 local settings = {
 	music = setting_file:get_bool("subwayminer.music", true),
@@ -43,9 +43,10 @@ end
 
 --switch the mab backend to RAM only
 --this is an ugly hack
-local worldmt = Settings(minetest.get_worldpath().."/world.mt")
+--TODO: remove after 5.7 release
+local worldmt = Settings(minetest.get_worldpath() .. "/world.mt")
 if worldmt:get("backend") ~= "dummy" then
-	worldmt:set("backend","dummy")
+	worldmt:set("backend", "dummy")
 	worldmt:write()
 	minetest.log("action", "[sm_game] Changed map backend to RAM only (Dummy), forcing restart")
 	--minetest.request_shutdown("Initial world setup complete, please reconnect", true, 0)
@@ -105,13 +106,14 @@ local default_infos = {
 function sm_game.set_state(name, infos)
 	sm_game.data.state = name
 	sm_game.data.infos = table.copy(default_infos[name])
-	for k,v in pairs(infos or {}) do
+	for k, v in pairs(infos or {}) do
 		sm_game.data.infos[k] = v
 	end
 end
 
 local data = sm_game.data
 
+---@type ObjectRef
 local cache_player
 --local cache_chunk
 
@@ -121,23 +123,24 @@ local cache_player
 
 --local animation_speed = 30
 local model_animations = {
-	stand     = {x = 0,   y = 79},
-	lay       = {x = 162, y = 166},
-	walk      = {x = 168, y = 187},
+	stand = { x = 0, y = 79 },
+	lay   = { x = 162, y = 166 },
+	walk  = { x = 168, y = 187 },
 	--mine      = {x = 189, y = 198},
 	--walk_mine = {x = 200, y = 219},
 	--sit       = {x = 81,  y = 160},
 }
 
-local wait_hud_colors = {
-	0xFF0300, --red
-	0xFF8000, --orange
-	0xFFDB00, --yellow
-	0x2AFF00, --green
+
+local hud_colors = {
+	red = 0xFF0300,
+	orange = 0xFF8000,
+	yellow = 0xFFDB00,
+	green = 0x2AFF00,
 }
 
 local loading_formspec = table.concat({
-	"formspec_version[4]",
+	"formspec_version[6]",
 	"size[20,12]",
 	"bgcolor[#080808BB;both;#58AFB9]",
 	"hypertext[0,0;20,10;loading;<global valign=middle halign=center size=50 color=#58AFB9><b>Loading...</b>]",
@@ -149,12 +152,12 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:set_pos(init_pos)
 	cache_player:set_properties({
 		mesh         = "character.b3d",
-		textures     = {"character.png"},
+		textures     = { "character.png" },
 		visual       = "mesh",
-		visual_size  = {x = 0.5, y = 0.5},
-		collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.7, 0.3},
+		visual_size  = { x = 0.5, y = 0.5 },
+		collisionbox = { -0.3, 0.0, -0.3, 0.3, 1.7, 0.3 },
 		stepheight   = 0.6,
-		eye_height   = 0.4,--1.47,
+		eye_height   = 0.4, --1.47,
 	})
 	cache_player:hud_set_flags({
 		hotbar        = false,
@@ -165,10 +168,10 @@ minetest.register_on_joinplayer(function(player)
 		minimap       = false,
 		minimap_radar = false,
 	})
-	cache_player:set_stars({visible = false})
+	cache_player:set_stars({ visible = false })
 	--cache_player:set_clouds({density = 0})
-	cache_player:set_sun({visible = false})
-	cache_player:set_moon({visible = false})
+	cache_player:set_sun({ visible = false })
+	cache_player:set_moon({ visible = false })
 	cache_player:override_day_night_ratio(1)
 	cache_player:set_formspec_prepend(table.concat({
 		"background9[5,5;1,1;gui_formbg.png;true;10]",
@@ -176,56 +179,56 @@ minetest.register_on_joinplayer(function(player)
 	cache_player:set_inventory_formspec("")
 	data.hud_ids.coin_icon = cache_player:hud_add({
 		hud_elem_type = "image",
-		position      = {x=0, y=0},
+		position      = { x = 0, y = 0 },
 		name          = "coin_icon",
-		scale         = {x = 4, y = 4},
+		scale         = { x = 4, y = 4 },
 		text          = "default_mese_crystal.png",
-		alignment     = {x=1, y=1},
-		offset        = {x=20, y=20},
-		size          = { x=100, y=100 },
+		alignment     = { x = 1, y = 1 },
+		offset        = { x = 20, y = 20 },
+		size          = { x = 100, y = 100 },
 		z_index       = 0,
 	})
 	data.hud_ids.coin_count = cache_player:hud_add({
 		hud_elem_type = "text",
-		position      = {x=0, y=0},
+		position      = { x = 0, y = 0 },
 		name          = "coin_icon",
-		scale         = {x = 4, y = 4},
+		scale         = { x = 4, y = 4 },
 		text          = "000000",
 		number        = 0xFFFFFF,
-		alignment     = {x=1, y=1},
-		offset        = {x=90, y=24},
-		size          = { x=3, y=3 },
+		alignment     = { x = 1, y = 1 },
+		offset        = { x = 90, y = 24 },
+		size          = { x = 3, y = 3 },
 		z_index       = 0,
 	})
 	data.hud_ids.coin_bg = cache_player:hud_add({
 		hud_elem_type = "image",
-		position      = {x=0, y=0},
+		position      = { x = 0, y = 0 },
 		name          = "coin_bg",
-		scale         = {x = 2, y = 2},
+		scale         = { x = 2, y = 2 },
 		text          = "sm_game_score_hud.png",
-		alignment     = {x=1, y=1},
-		offset        = {x=19, y=19},
-		size          = { x=100, y=100 },
+		alignment     = { x = 1, y = 1 },
+		offset        = { x = 19, y = 19 },
+		size          = { x = 100, y = 100 },
 		z_index       = -1,
 	})
 	data.hud_ids.title = cache_player:hud_add({
 		hud_elem_type = "text",
-		position      = {x = 0.5, y = 0.5},
-		alignment     = {x = 0, y = -1.3},
+		position      = { x = 0.5, y = 0.5 },
+		alignment     = { x = 0, y = -1.3 },
 		text          = "",
 		style         = 1,
-		size          = {x = 7},
+		size          = { x = 7 },
 		number        = 0xFFFFFF,
 		z_index       = 100,
 	})
 	data.hud_ids.title_bg = cache_player:hud_add({
 		hud_elem_type = "image",
-		position      = {x = 0.5, y = 0.5},
+		position      = { x = 0.5, y = 0.5 },
 		name          = "title_bg",
-		scale         = {x = 2, y = 2},
+		scale         = { x = 2, y = 2 },
 		text          = "blank.png",
-		alignment     = {x = 0, y = -1.3},
-		size          = { x=100, y=100 },
+		alignment     = { x = 0, y = -1.3 },
+		size          = { x = 100, y = 100 },
 		z_index       = -1,
 	})
 	--[[data.hud_ids.subtitle = cache_player:hud_add({
@@ -245,7 +248,7 @@ end)
 minetest.register_entity("sm_game:player", {
 	initial_properties = {
 		visual = "sprite",
-		textures = {"blank.png"},
+		textures = { "blank.png" },
 		pointable = false,
 		static_save = false,
 	},
@@ -253,7 +256,7 @@ minetest.register_entity("sm_game:player", {
 	walk_speed = 6,
 
 	zvel = function(self)
-		return math.min((10+(os.time()-sm_game.data.infos.init_gametime)/5), settings.speed_clipping) or 0
+		return math.min((10 + (os.time() - sm_game.data.infos.init_gametime) / 5), settings.speed_clipping) or 0
 	end,
 	on_step = function(self)
 		if cache_player and sm_game.data.state == "game" then
@@ -307,12 +310,20 @@ minetest.register_entity("sm_game:player", {
 	end,
 })
 
+---@param line integer
+---@return boolean
 local function is_line_valid(line)
 	return (line == -1 or line == 0 or line == 1)
 end
 
+---@param a number
+---@param b number
+---@return integer
+---@return number
 local function divmod(a, b) return math.floor(a / b), a % b end
 
+---@param seconds integer
+---@return string
 local function format_duration(seconds)
 	local display_hours, seconds_left = divmod(seconds, 3600)
 	local display_minutes, display_seconds = divmod(seconds_left, 60)
@@ -326,43 +337,105 @@ minetest.after(2, function()
 end)
 
 local main_menu_header = table.concat({
-	"formspec_version[4]",
+	"formspec_version[6]",
 	"size[20,12]",
 	"bgcolor[#080808BB;both;#58AFB9]",
 	"style_type[button;border=false;sound=sm_game_button;font_size=*2;font=bold;textcolor=#58AFB9]",
 })
 
+local function sort_achievements()
+	---@type table<string, achievement_definition>
+	local s = {}
+	for n, _ in pairs(sm_game.api.achievements) do
+		table.insert(s, n)
+	end
+
+	table.sort(s, function(a, b)
+		local aa = sm_game.api.achievements[a]
+		local bb = sm_game.api.achievements[b]
+
+		if sm_game.api.player_achievements[a] and not sm_game.api.player_achievements[b] then
+			return true
+		end
+		return aa.rarity < bb.rarity
+	end)
+
+	return s
+end
+
+local function achievements_list()
+	local sorted_achievements = sort_achievements()
+	local o = ""
+	--local id = 0
+	for i, n in ipairs(sorted_achievements) do
+		local id = i - 1
+		local v = sm_game.api.achievements[n]
+		o = o .. table.concat({
+			--"box[0," .. (id * 1.2) .. ";8,1;#232323]",
+			"image[0," .. (id * 1.2) .. ";8,1;gui_formbg.png;10]",
+			"image[0.05," .. 0.05 + (id * 1.2) .. ";0.9,0.9;" ..
+				F(sm_game.api.player_achievements[n] and v.icon or v.icon .. "^[multiply:#000000") .. "]",
+			string.format("hypertext[1," .. 0.1 + (id * 1.2) .. ";18,10;label;%s]",
+				"<style color=#58AFB9 size=15><b>" ..
+				F(v.description .. (sm_game.api.player_achievements[n] and "" or " (Locked)")) ..
+				"</b></style>\n" ..
+				"<style color=#468289 size=13><b>" .. F(v.long_description) .. "</b></style>"
+			),
+			sm_game.api.player_achievements[n] and "" or "box[0," .. (id * 1.2) .. ";8,1;#00000066]",
+		})
+	end
+	--for k,v in pairs(sm_game.api.achievements) do
+	--end
+	return o
+end
+
+--[[local function c_entries(t)
+	local c = 0
+	for _,_ in pairs(t) do
+		c = c + 1
+	end
+	return c
+end]]
+
 local function get_main_menu(page)
 	if page == "main" then
 		local form = main_menu_header
-		form = form..table.concat({
+		form = form .. table.concat({
 			"button[8,6;4,1;play;Play]",
 			"button[8,7;4,1;options;Options]",
 			"button[8,8;4,1;help;Help]",
 			"button[8,9;4,1;infos;Infos]",
 			"button[8,10;4,1;quit;Quit]",
 			"model[0.75,0.5;7,11;playermodel;character.b3d;character.png;0,200;false;false;0,79]",
+			--"image[13,1;5,1;"..F("sm_game_score_hud.png^[brighten").."]",
+			--"image[13,1;1,1;"..F("default_mese_crystal.png").."]",
+			--"label[13,1;ggg]",
 			string.format("hypertext[13,1;6,10;info_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Stats</b></center></style>",
 				"<global size=25 color=#58AFB9>",
-				"<mono>Highscore:    "..string.format("%06.f", sm_game.api.get_highscore()).."</mono>\n",
-				"<mono>Playcount:    "..string.format("%06.f", sm_game.api.get_playcount()).."</mono>\n",
-				"<mono>Playtime:     "..format_duration(sm_game.api.get_playtime()).."</mono>\n",
+				"<mono>Highscore:    " .. string.format("%06.f", sm_game.api.get_highscore()) .. "</mono>\n",
+				"<mono>Playcount:    " .. string.format("%06.f", sm_game.api.get_playcount()) .. "</mono>\n",
+				"<mono>Playtime:     " .. format_duration(sm_game.api.get_playtime()) .. "</mono>\n",
 			})),
+			"scrollbar[19,5;0.25,6;vertical;ascroll;0]",
+			--"scroll_container[13,5;5,".. 1.2*c_entries(sm_game.api.achievements) ..";ascroll;vertical;0.1]",
+			"scroll_container[13,5;5,6;ascroll;vertical;0.1]",
+			achievements_list(),
+			"scroll_container_end[]",
 		})
 		return form
 	elseif page == "options" then
 		local form = main_menu_header
-		form = form..table.concat({
+		form = form .. table.concat({
 			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Options</b></center></style>",
 			})),
-			"checkbox[1,2;option_music;Enable Music;"..tostring(settings.music).."]",
-			"tooltip[option_music;"..F("Toggle Music").."]",
+			"checkbox[1,2;option_music;Enable Music;" .. tostring(settings.music) .. "]",
+			"tooltip[option_music;" .. F("Toggle Music") .. "]",
 			"label[1,2.75;Player Speed Clipping]",
-			"tooltip[1,2.75;4,0.25;"..F("At how much the player speed will be clipped (10-40)").."]",
+			"tooltip[1,2.75;4,0.25;" .. F("At how much the player speed will be clipped (10-40)") .. "]",
 			"scrollbaroptions[min=10;max=40;smallstep=1;largestep=10]",
-			"scrollbar[1,3;5,0.5;<orientation>;option_speed_clipping;"..settings.speed_clipping.."]",
+			"scrollbar[1,3;5,0.5;<orientation>;option_speed_clipping;" .. settings.speed_clipping .. "]",
 			"button[1,4;4.25,1;option_reset;Reset Stats]",
 			"button[0,0;2,1;back;Back]",
 			"button[0,11;2,1;option_save;Save]",
@@ -370,7 +443,7 @@ local function get_main_menu(page)
 		return form
 	elseif page == "infos" then
 		local form = main_menu_header
-		form = form..table.concat({
+		form = form .. table.concat({
 			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Informations</b></center></style>",
 				"<global size=25 color=#58AFB9>",
@@ -385,7 +458,7 @@ local function get_main_menu(page)
 		return form
 	elseif page == "help" then
 		local form = main_menu_header
-		form = form..table.concat({
+		form = form .. table.concat({
 			string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 				"<style color=#58AFB9 size=50><center><b>Help</b></center></style>",
 				"<global size=25 color=#58AFB9>",
@@ -402,15 +475,16 @@ local function get_main_menu(page)
 	end
 end
 
-local function get_end_formspec(score, is_highscore, playtime)
+local function get_end_formspec(score, is_highscore, playtime, achievements)
 	return table.concat({
 		main_menu_header,
 		string.format("hypertext[1,0.5;18,10;help_txt;%s]", table.concat({
 			"<style color=#58AFB9 size=50><center><b>Summary</b></center></style>",
 			"<global size=25 color=#58AFB9>",
 			is_highscore and "<style color=#2AFF00><center><b>New Highscore!</b></center></style>" or "\n",
-			"<mono>Score:        "..string.format("%06.f", score).."</mono>\n",
-			"<mono>Playtime:     "..format_duration(playtime).."</mono>\n",
+			"<mono>Score:        " .. string.format("%06.f", score) .. "</mono>\n",
+			"<mono>Playtime:     " .. format_duration(playtime) .. "</mono>\n",
+			dump(achievements)
 		})),
 		"button[9,11;2,1;game_ok;Ok]",
 	})
@@ -425,7 +499,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			minetest.request_shutdown()
 		elseif fields.play then
 			minetest.close_formspec("singleplayer", "sm_game:menu")
-			sm_game.set_state("game_loading", {init_gametime = os.time()})
+			sm_game.set_state("game_loading", { init_gametime = os.time() })
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif fields.options then
 			minetest.show_formspec("singleplayer", "sm_game:menu", get_main_menu("options"))
@@ -445,6 +519,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			sm_game.api.set_highscore(0)
 			sm_game.api.set_playtime(0)
 			sm_game.api.set_playcount(0)
+			sm_game.api.set_coin_count(0)
+			sm_game.api.player_achievements = {}
 		elseif fields.option_save then
 			save_settings()
 		elseif fields.option_speed_clipping then
@@ -479,15 +555,15 @@ minetest.register_globalstep(function(dtime)
 			else
 				cache_player:set_pos(init_pos)
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(assert(attach), "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 
 				local itementity = minetest.add_entity(init_pos, "sm_mapnodes:pick")
-				itementity:set_attach(cache_player, "Arm_Right", vector.new(0, 5.5, 3), vector.new(-90, 225, 90))
+				assert(itementity):set_attach(cache_player, "Arm_Right", vector.new(0, 5.5, 3), vector.new(-90, 225, 90))
 			end
 			cache_player:set_animation(model_animations["stand"], 40, 0)
 		elseif gamestate == "menu" then
 			cache_player:set_look_horizontal(0)
-			cache_player:set_look_vertical(-math.pi/2)
+			cache_player:set_look_vertical(-math.pi / 2)
 		elseif gamestate == "game_loading" then
 			local time = os.time()
 			local gametime = infos.init_gametime
@@ -500,20 +576,20 @@ minetest.register_globalstep(function(dtime)
 					infos.music_handler = minetest.sound_play({
 						name = "sm_game_game_music"
 					},
-					{
-						to_player = "singleplayer",
-						gain = 0.2,
-						loop = true
-					}, false)
+						{
+							to_player = "singleplayer",
+							gain = 0.2,
+							loop = true
+						}, false)
 				end
 				minetest.after(1, function()
-					minetest.sound_play({name = "sm_game_wait"}, {to_player = "singleplayer"}, true)
+					minetest.sound_play({ name = "sm_game_wait" }, { to_player = "singleplayer" }, true)
 				end)
 				minetest.after(2, function()
-					minetest.sound_play({name = "sm_game_wait"}, {to_player = "singleplayer"}, true)
+					minetest.sound_play({ name = "sm_game_wait" }, { to_player = "singleplayer" }, true)
 				end)
 				minetest.after(3, function()
-					minetest.sound_play({name = "sm_game_wait", pitch = 1.5}, {to_player = "singleplayer"}, true)
+					minetest.sound_play({ name = "sm_game_wait", pitch = 1.5 }, { to_player = "singleplayer" }, true)
 				end)
 				infos.is_sound = true
 			end
@@ -521,31 +597,31 @@ minetest.register_globalstep(function(dtime)
 			if ctime == 0 then
 				cache_player:hud_change(data.hud_ids.coin_count, "text", "000000")
 				cache_player:hud_change(data.hud_ids.title, "text", "3..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.red)
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 			elseif ctime == 1 then
 				cache_player:hud_change(data.hud_ids.title, "text", "2..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[2])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.orange)
 			elseif ctime == 2 then
 				cache_player:hud_change(data.hud_ids.title, "text", "1..")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[3])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.yellow)
 			elseif ctime == 3 then
 				cache_player:hud_change(data.hud_ids.title, "text", "Go!")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[4])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.green)
 			elseif ctime == 4 then
 				cache_player:hud_change(data.hud_ids.title, "text", "")
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 				local sh = infos.music_handler
-				sm_game.set_state("game", {init_gametime = os.time(), music_handler = sh})
+				sm_game.set_state("game", { init_gametime = os.time(), music_handler = sh })
 			end
 		elseif gamestate == "game" then
 
 			if not attach then
 
-				minetest.log("error","[sm_game] ATTACH NOT FOUND!, creating new attachment!")
+				minetest.log("error", "[sm_game] ATTACH NOT FOUND!, creating new attachment!")
 
 				attach = minetest.add_entity(init_pos, "sm_game:player")
-				cache_player:set_attach(attach, "", vector.new(0, -5, 0), vector.new(0, 0, 0))
+				cache_player:set_attach(assert(attach), "", vector.new(0, -5, 0), vector.new(0, 0, 0))
 			end
 
 			if not infos.is_moving and not infos.is_sneaking and not infos.is_jumping then
@@ -567,14 +643,22 @@ minetest.register_globalstep(function(dtime)
 				end
 			end
 
-			if sm_game.data.infos.is_sneaking then
-				if os.clock() > sm_game.data.infos.sneak_timeout + 0.5 then
-					sm_game.data.infos.is_sneaking = false
-					sm_game.data.infos.sneak_timeout = nil
+			if infos.is_sneaking then
+				--cache_player:set_eye_offset(vector.zero(), vector.new(0, -10, 0))
+				cache_player:set_properties({ eye_height = 0.1 })
+			else
+				--cache_player:set_eye_offset(vector.zero(), vector.zero())
+				cache_player:set_properties({ eye_height = 0.4 })
+			end
+
+			if infos.is_sneaking then
+				if os.clock() > infos.sneak_timeout + 0.5 then
+					infos.is_sneaking = false
+					infos.sneak_timeout = nil
 				end
 			end
 
-			for _,obj in pairs(minetest.get_objects_inside_radius(pos, 0.9)) do
+			for _, obj in pairs(minetest.get_objects_inside_radius(pos, 0.9)) do
 				local ent = obj:get_luaentity()
 				if ent and ent.name == "sm_mapnodes:mese_coin" then
 					minetest.add_particlespawner({
@@ -584,8 +668,8 @@ minetest.register_globalstep(function(dtime)
 						maxpos = pos,
 						--minpos = vector.new(0,0,0),
 						--maxpos = vector.new(0,0,0),
-						minvel = {x=-4, y=-4, z=-4},
-						maxvel = {x=4, y=4, z=4},
+						minvel = { x = -4, y = -4, z = -4 },
+						maxvel = { x = 4, y = 4, z = 4 },
 						--minacc = {x=-1, y=-1, z=-1},
 						--maxacc = {x=1, y=1, z=1},
 						minexptime = 0.1,
@@ -602,7 +686,7 @@ minetest.register_globalstep(function(dtime)
 						glow = minetest.LIGHT_MAX,
 					})
 					obj:remove()
-					minetest.sound_play({name = "sm_game_coin"}, {to_player = "singleplayer"}, true)
+					minetest.sound_play({ name = "sm_game_coin" }, { to_player = "singleplayer" }, true)
 					infos.coins_count = infos.coins_count + 1
 				end
 			end
@@ -637,13 +721,50 @@ minetest.register_globalstep(function(dtime)
 					end
 					sm_game.api.set_playtime(sm_game.api.get_playtime() + (os.time() - infos.init_gametime))
 					sm_game.api.set_playcount(sm_game.api.get_playcount() + 1)
+
 					local sh = infos.music_handler
 
 					--remove all existing coins
-					for _,l in pairs(minetest.luaentities) do
+					for _, l in pairs(minetest.luaentities) do
 						if l.name == "sm_mapnodes:mese_coin" then
 							l.object:remove()
 						end
+					end
+
+					--calculate achievements
+
+					local achievements = {}
+
+					local playcount = sm_game.api.get_playcount()
+
+					if not sm_game.api.player_achievements["first"] then
+						table.insert(achievements, "first")
+					end
+
+					if not sm_game.api.player_achievements["adict"] and playcount >= 100 then
+						table.insert(achievements, "adict")
+					end
+
+					if not sm_game.api.player_achievements["100coins"] and infos.coins_count >= 100 then
+						table.insert(achievements, "100coins")
+					end
+
+					if not sm_game.api.player_achievements["1000coins"] and infos.coins_count >= 1000 then
+						table.insert(achievements, "1000coins")
+					end
+
+					--minetest.chat_send_all(obstacle_state)
+
+					if not sm_game.api.player_achievements["death_train"] and obstacle_state == 2 then
+						table.insert(achievements, "death_train")
+					end
+
+					if not sm_game.api.player_achievements["death_bumber"] and obstacle_state == 3 then
+						table.insert(achievements, "death_bumber")
+					end
+
+					for _, n in ipairs(achievements) do
+						sm_game.api.grant_achievement(n)
 					end
 
 					sm_game.set_state("game_end", {
@@ -652,6 +773,7 @@ minetest.register_globalstep(function(dtime)
 						high_score = is_highscore,
 						init_gametime = os.time(),
 						music_handler = sh,
+						achievements = achievements,
 					})
 				end
 			end
@@ -660,7 +782,7 @@ minetest.register_globalstep(function(dtime)
 		elseif gamestate == "game_end" then
 			if not infos.is_hud_shown then
 				cache_player:hud_change(data.hud_ids.title, "text", "Game Over")
-				cache_player:hud_change(data.hud_ids.title, "number", wait_hud_colors[1])
+				cache_player:hud_change(data.hud_ids.title, "number", hud_colors.red)
 				cache_player:hud_change(data.hud_ids.title_bg, "text", "sm_game_title_hud.png")
 				cache_player:set_animation(model_animations["lay"], 40, 0)
 				if settings.music and infos.music_handler then
@@ -669,7 +791,7 @@ minetest.register_globalstep(function(dtime)
 				end
 				--[[if infos.high_score then
 					cache_player:hud_change(data.hud_ids.subtitle, "text", "New Highscore!")
-					cache_player:hud_change(data.hud_ids.subtitle, "number", wait_hud_colors[4])
+					cache_player:hud_change(data.hud_ids.subtitle, "number", hud_colors.green)
 				end]]
 				infos.is_hud_shown = true
 			end
@@ -695,7 +817,7 @@ minetest.register_globalstep(function(dtime)
 					cache_player:hud_change(data.hud_ids.title_bg, "text", "blank.png")
 					sm_game.set_state("menu")
 					minetest.show_formspec("singleplayer", "sm_game:menu",
-						get_end_formspec(infos.score, infos.high_score, infos.playtime))
+						get_end_formspec(infos.score, infos.high_score, infos.playtime, infos.achievements))
 				end
 			end
 		end
@@ -704,11 +826,11 @@ end)
 
 minetest.register_abm({
 	label = "Coins Spawning",
-	nodenames = {"sm_mapnodes:rail"},
+	nodenames = { "sm_mapnodes:rail" },
 	interval = 3,
 	chance = 20,
 	min_y = 1,
-    max_y = 1,
+	max_y = 1,
 	action = function(pos, node, active_object_count, active_object_count_wider)
 		if data.state == "game" then
 			minetest.add_entity(pos, "sm_mapnodes:mese_coin")
@@ -716,8 +838,8 @@ minetest.register_abm({
 	end,
 })
 
-dofile(modpath.."/storage.lua")
-dofile(modpath.."/builtin_modifications.lua")
-dofile(modpath.."/mapgen.lua")
+dofile(modpath .. "/storage.lua")
+dofile(modpath .. "/builtin_modifications.lua")
+dofile(modpath .. "/mapgen.lua")
 
 minetest.log("action", "[sm_game] loaded sucessfully")
