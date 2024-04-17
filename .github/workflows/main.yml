@@ -1,10 +1,10 @@
-name: luacheck
+name: Lint
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   workflow_dispatch:
 
@@ -14,12 +14,11 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v2
-      - name: luacheck
-        uses: nebularg/actions-luacheck@v1.1.0
-        #with:
-          #files: # optional, default is .
-          #path: # optional, default is ${{ github.workspace }}
-          #args: # optional
-          #config: # optional
-          #annotate: # optional, default is none
+      - uses: actions/checkout@v3
+      - name: Type Check Code Base
+        uses: mrcjkb/lua-typecheck-action@v0.1.1
+        with:
+          checklevel: Warning
+          directories: |
+            mods
+          configpath: ".luarc.json"
